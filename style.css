@@ -71,7 +71,7 @@ a { color: inherit; }
 }
 .icon { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; vertical-align: -3px; }
 .link .icon { width: 16px; height: 16px; }
-.steps b .icon, .sub .icon, .empty-list .icon { width: .9em; height: .9em; vertical-align: -.08em; }
+.sauce-steps b .icon, .sub .icon, .empty-list .icon { width: .9em; height: .9em; vertical-align: -.08em; }
 .btn:hover { background: var(--ink); color: var(--bg); }
 .btn.primary { background: var(--ink); color: var(--bg); }
 .btn.primary:hover { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
@@ -89,8 +89,8 @@ a { color: inherit; }
 
 /* ── page frame ── */
 .book { flex: 1; width: 100%; max-width: var(--max); margin: 0 auto; padding: 40px 24px 64px; }
-/* Entrance animations slide in from the side; clip so they never cause a sideways scroll. */
-.book { overflow-x: clip; }
+/* Full-bleed hero and slide-in motion must never cause a sideways scroll. */
+html { overflow-x: clip; }
 .book:focus { outline: none; }
 .page { display: none; }
 .page.active { display: block; animation: rise .3s ease; }
@@ -110,16 +110,24 @@ a { color: inherit; }
 .fine { font-size: 13px; color: var(--muted); }
 
 /* ── landing ── */
+/* Hero: full-bleed food footage under an olive scrim; the glance label overlaps its bottom edge. */
 .hero {
-  display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: end;
-  padding: 24px 0 72px;
+  position: relative; display: flex; align-items: flex-end; overflow: hidden;
+  margin: -40px calc(50% - 50vw) 0; min-height: min(82vh, 760px); padding: 96px max(24px, calc(50vw - 516px)) 140px;
+  background: #2e3b1f url("media/hero-bowls.jpg") center / cover no-repeat; color: #e8f0d8;
 }
-.hero h1 { font-size: clamp(48px, 9vw, 104px); margin-bottom: 22px; }
-.lede { font-size: 19px; color: var(--muted); max-width: 32em; margin: 0 0 28px; }
+.hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero-scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(22, 29, 15, .88) 0%, rgba(22, 29, 15, .66) 50%, rgba(22, 29, 15, .25) 100%); }
+.hero-text { position: relative; max-width: 640px; }
+.hero .kicker { color: #c9d6b2; }
+.hero h1 { font-size: clamp(48px, 9vw, 104px); margin-bottom: 22px; color: #e8f0d8; }
+.lede { font-size: 19px; max-width: 32em; margin: 0 0 28px; }
+.hero .lede { color: #dde6cb; }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; }
 
 /* the "nutrition facts" panel */
 .label { border: 3px solid var(--ink); background: var(--surface); padding: 10px 14px 6px; }
+.cover > .label { position: relative; z-index: 2; width: min(420px, 100%); margin: -110px 0 0 auto; }
 .label-title {
   font: 800 30px/1 var(--display); font-stretch: 68%; text-transform: uppercase;
   margin: 0 0 6px; padding-bottom: 8px; border-bottom: 10px solid var(--ink);
@@ -139,50 +147,92 @@ a { color: inherit; }
 .section-head h2 {
   font: 800 28px/1 var(--display); font-stretch: 68%; text-transform: uppercase;
 }
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 56px; }
-.card {
-  display: flex; flex-direction: column; gap: 10px; padding: 18px;
-  border: 2px solid var(--ink); background: var(--surface); text-decoration: none;
-  transition: transform .15s, box-shadow .15s;
-}
-.card:hover { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--ink); }
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; }
-.card-protein { font: 600 34px/1 var(--mono); letter-spacing: -.02em; }
-.card-protein small { display: block; font: 500 12px/1.6 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.card-emoji { font-size: 28px; }
-.card-title { font: 700 20px/1.15 var(--display); font-stretch: 85%; }
-.card-meta { font: 500 12px/1.4 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 
-/* roomy landing sections */
-.band { padding: 72px 0; border-top: 3px solid var(--ink); }
-.band .cards { margin-bottom: 0; }
-.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
-.steps li {
-  counter-increment: step; display: grid; grid-template-columns: 120px 1fr 1.4fr; gap: 24px; align-items: baseline;
-  padding: 28px 0; border-bottom: 1px solid var(--hair);
+/* How it works: sauce poured from a squeeze bottle; steps sit along the stream. */
+.sauce-section { padding: 72px 0 0; }
+.sauce { position: relative; max-width: 1000px; margin: 0 auto; }
+.sauce-art { display: block; width: 100%; height: auto; overflow: visible; }
+.sauce-art.narrow { display: none; }
+.stream, .stream-edge { fill: none; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.stream-edge { stroke: var(--brown); stroke-width: 34; }
+.stream { stroke: var(--yellow); stroke-width: 24; }
+.bottle { position: absolute; left: 50%; top: -128px; width: 64px; translate: -50% 0; transform-origin: 50% 0; }
+.bottle-body { fill: var(--yellow); stroke: #2e3b1f; stroke-width: 4; }
+.bottle-label { fill: #e8f0d8; stroke: #2e3b1f; stroke-width: 4; }
+.bottle-cap, .bottle-nozzle { fill: #2e3b1f; }
+.sauce-steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+.sauce-steps li {
+  position: absolute; width: 40%; translate: 0 -50%; counter-increment: step;
+  display: grid; grid-template-columns: auto 1fr; gap: 2px 14px; align-items: baseline;
+  transition: opacity .35s ease-out, translate .35s ease-out;
 }
-.steps li:last-child { border-bottom: 0; }
-.steps li::before { content: counter(step, decimal-leading-zero); font: 600 56px/1 var(--mono); letter-spacing: -.03em; color: var(--brown); }
-.steps b { font: 800 34px/1 var(--display); font-stretch: 68%; text-transform: uppercase; }
-.steps span { color: var(--muted); font-size: 18px; }
+.sauce-steps li::before { content: counter(step, decimal-leading-zero); grid-row: span 2; font: 600 44px/1 var(--mono); color: var(--brown); }
+.sauce-steps b { font: 800 30px/1 var(--display); font-stretch: 68%; text-transform: uppercase; }
+.sauce-steps span { color: var(--muted); font-size: 17px; }
+.sauce-steps .s1 { top: 16%; left: 6%; }
+.sauce-steps .s2 { top: 38%; left: 54%; }
+.sauce-steps .s3 { top: 62%; left: 6%; }
+.sauce-steps .s4 { top: 86%; left: 54%; }
 
+/* Good to know: the facts as sandwich layers, each opening to say more. */
+.sandwich-section { padding: 48px 0 72px; }
+.sandwich-section .sub { max-width: 34em; }
+.sandwich { list-style: none; margin: 8px auto 56px; padding: 0; max-width: 760px; display: grid; gap: 4px; }
+.layer { position: relative; }
+.layer-face {
+  position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 20px 28px; border: 3px solid #2e3b1f; color: #2e3b1f; min-height: 88px;
+}
+.layer-text { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-weight: 600; font-size: 16px; }
+.layer .fig { font: 600 36px/1 var(--mono); letter-spacing: -.03em; }
+.btn.know { flex: none; background: #f4f8ec; color: #2e3b1f; border-color: #2e3b1f; }
+.btn.know:hover { background: #2e3b1f; color: #f4f8ec; }
+/* bread, greens, tofu, cheese, spinach, bread */
+.bun-top .layer-face {
+  background: radial-gradient(circle at 20% 30%, #f4e6c4 0 3px, transparent 4px) 0 0 / 46px 30px, linear-gradient(#e8b931, #c98d3a);
+  border-radius: 120px 120px 14px 14px / 70px 70px 14px 14px; padding-top: 34px; min-height: 120px;
+}
+.lettuce .layer-face {
+  background: #9bb55f; border-radius: 6px;
+  -webkit-mask: radial-gradient(14px at 50% 0, transparent 97%, #000) 50% 6px / 28px 100% repeat-x;
+  mask: radial-gradient(14px at 50% 0, transparent 97%, #000) 50% 6px / 28px 100% repeat-x; padding-top: 30px;
+}
+.tofu .layer-face { background: linear-gradient(90deg, transparent 32.8%, #c9d6b2 33% 33.4%, transparent 33.6% 66.4%, #c9d6b2 66.6% 67%, transparent 67.2%), #f4f8ec; }
+.cheese .layer-face { background: #e8b931; margin: 0 -14px; }
+.cheese .layer-face::after {
+  content: ""; position: absolute; left: 18%; bottom: -26px; width: 46px; height: 26px; background: #e8b931;
+  border: 3px solid #2e3b1f; border-top: 0; border-radius: 0 0 23px 23px; z-index: 1;
+}
+.spinach .layer-face { background: #4f5e38; color: #e8f0d8; border-radius: 30px 8px 30px 8px; }
+.spinach .btn.know { background: #e8f0d8; }
+.bun-bottom .layer-face {
+  background: linear-gradient(#c98d3a, #a8722f); color: #f4f8ec;
+  border-radius: 14px 14px 60px 60px / 14px 14px 40px 40px; padding-bottom: 28px;
+}
+.bun-bottom .btn.know { background: #f4f8ec; }
+/* sauce landing on the top bun */
+.bun-top .layer-face::before {
+  content: ""; position: absolute; left: 50%; top: -6px; width: 180px; height: 34px; translate: -50% 0;
+  background: #e8b931; border: 3px solid #6b4a2b; border-top: 0; border-radius: 0 0 90px 90px / 0 0 30px 30px;
+  opacity: 1; transform-origin: 50% 0; transition: opacity .4s ease-out, scale .4s ease-out;
+}
+/* opened layer */
+.layer-more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(0, 0, .58, 1); }
+.layer.open .layer-more { grid-template-rows: 1fr; }
+.layer-more-inner {
+  overflow: hidden; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
+  background: var(--surface); border: 3px solid transparent; border-top: 0; margin: 0 16px; padding: 0 24px;
+  transition: padding .4s cubic-bezier(0, 0, .58, 1);
+}
+.layer.open .layer-more-inner { border-color: var(--ink); padding: 22px 24px 24px; }
+.layer-more h4 { margin: 0 0 6px; font: 600 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.layer-more p { margin: 0; font-size: 15px; }
+.charts-title { font: 800 22px/1 var(--display); font-stretch: 68%; text-transform: uppercase; margin: 0 0 14px; }
 .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 8px 0 12px; }
 .chart { margin: 0; border: 2px solid var(--ink); background: #f4f8ec; }
 .chart iframe { display: block; width: 100%; height: 420px; border: 0; }
 .chart figcaption { padding: 12px 16px; border-top: 1px solid var(--ink); font-size: 14px; color: #4f5e38; }
 
-.facts-board { display: grid; gap: 36px; margin: 8px 0 40px; }
-.facts-group {
-  display: inline-block; font: 600 12px var(--mono); letter-spacing: .14em; text-transform: uppercase;
-  color: var(--on-accent); background: var(--accent); padding: 5px 10px; margin: 0 0 14px;
-}
-.spend .facts-group { background: var(--yellow); color: #2e3b1f; }
-.fact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.fact-card { display: flex; flex-direction: column; gap: 12px; padding: 22px; border: 2px solid var(--ink); background: var(--surface); }
-.fact-card .fig { font: 600 44px/1 var(--mono); letter-spacing: -.03em; color: var(--ink); }
-.spend .fact-card .fig { color: var(--brown); }
-.fact-card .unit { font-weight: 600; font-size: 16px; }
-.fact-card .body { font-size: 15px; color: var(--muted); margin-top: auto; }
 .sum { margin: 0; font: 600 16px var(--mono); display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
 .sum span:last-child { background: var(--accent); color: var(--on-accent); padding: 0 6px; }
 .bars { display: grid; gap: 10px; }
@@ -359,15 +409,23 @@ code { font: .9em var(--mono); background: var(--surface); padding: 1px 5px; bor
   .wordmark small { display: none; }
   #print { display: none; }
   .book { padding: 28px 16px 48px; }
-  .hero { grid-template-columns: 1fr; gap: 32px; padding: 8px 0 48px; }
-  .cards, .fact-grid, .chart-grid { grid-template-columns: 1fr; }
+  .hero { margin-top: -28px; padding: 72px 16px 120px; min-height: 78vh; }
+  .hero-scrim { background: linear-gradient(0deg, rgba(22, 29, 15, .9) 0%, rgba(22, 29, 15, .6) 60%, rgba(22, 29, 15, .35) 100%); }
+  .cover > .label { margin-top: -90px; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .sauce-art.wide { display: none; }
+  .sauce-art.narrow { display: block; }
+  .bottle { left: 15%; top: -110px; width: 52px; }
+  .sauce-steps li { width: 62%; left: 34% !important; }
+  .sauce-steps .s1 { top: 19%; } .sauce-steps .s2 { top: 42%; } .sauce-steps .s3 { top: 66%; } .sauce-steps .s4 { top: 88%; }
+  .sauce-steps li::before { font-size: 30px; }
+  .sauce-steps b { font-size: 22px; }
+  .sauce-steps span { font-size: 15px; }
+  .layer-face { flex-direction: column; align-items: flex-start; padding: 18px 18px; }
+  .cheese .layer-face { margin: 0 -8px; }
+  .layer-more-inner { grid-template-columns: 1fr; margin: 0 8px; }
   .chart iframe { height: 380px; }
   .band { padding: 48px 0; }
-  .steps li { grid-template-columns: 64px 1fr; gap: 6px 16px; padding: 22px 0; }
-  .steps li::before { font-size: 34px; grid-row: span 2; }
-  .steps b { font-size: 26px; }
-  .steps span { font-size: 16px; }
-  .fact-card .fig { font-size: 36px; }
   .cta-band { padding: 32px 24px; }
   .cols { grid-template-columns: 1fr; gap: 36px; }
   .grid { grid-template-columns: 1fr 1fr; }
@@ -383,6 +441,8 @@ code { font: .9em var(--mono); background: var(--surface); padding: 1px 5px; bor
 /* ── motion: values from the Figma prototype ("Home – motion"). Plays once on load;
    cards and steps start when scrolled into view. Off for reduced-motion users. ── */
 @keyframes m-in { from { opacity: 0; translate: var(--mx, 0) var(--my, 0); } to { opacity: 1; translate: 0 0; } }
+@keyframes m-grow { from { transform: scaleX(0); } }
+@keyframes m-fade { from { opacity: 0; } }
 @keyframes m-pop {
   0% { scale: var(--from, .6); animation-timing-function: cubic-bezier(0, 0, .58, 1); }
   55% { scale: 1.12; animation-timing-function: cubic-bezier(.42, 0, .58, 1); }
@@ -396,50 +456,45 @@ code { font: .9em var(--mono); background: var(--surface); padding: 1px 5px; bor
 .motion #p-cover.active .ln:nth-child(3) { animation-delay: .54s; }
 .motion #p-cover.active .lede { --my: 16px; animation: m-in .45s cubic-bezier(0, 0, .58, 1) .8s both; }
 .motion #p-cover.active .hero-cta { --my: 16px; animation: m-in .45s cubic-bezier(0, 0, .58, 1) .95s both; }
-.motion #p-cover.active .label { --mx: 28px; animation: m-in .6s cubic-bezier(0, 0, .58, 1) .6s both; }
+.motion #p-cover.active .label { --my: 28px; animation: m-in .6s cubic-bezier(0, 0, .58, 1) .6s both; }
 .motion #p-cover.active .label-row { --mx: 12px; animation: m-in .35s cubic-bezier(0, 0, .58, 1) both; }
 .motion #p-cover.active .label-row:nth-of-type(1) { animation-delay: .9s; }
 .motion #p-cover.active .label-row:nth-of-type(2) { animation-delay: 1s; }
 .motion #p-cover.active .label-row:nth-of-type(3) { animation-delay: 1.1s; }
 .motion #p-cover.active .label-row:nth-of-type(4) { animation-delay: 1.2s; }
 .motion #p-cover.active .label-lead b { display: inline-block; --from: .6; animation: m-pop .4s 1.3s both; }
-.motion #p-cover.active .cards:not(.in) .card,
-.motion #p-cover.active .steps:not(.in) li { opacity: 0; }
-.motion #p-cover.active .cards.in .card { --my: 32px; animation: m-in .5s cubic-bezier(0, 0, .58, 1) both; }
-.motion #p-cover.active .cards.in .card:nth-child(2) { animation-delay: .12s; }
-.motion #p-cover.active .cards.in .card:nth-child(3) { animation-delay: .24s; }
-.motion #p-cover.active .steps.in li { --mx: -24px; animation: m-in .45s cubic-bezier(0, 0, .58, 1) both; }
-.motion #p-cover.active .steps.in li:nth-child(2) { animation-delay: .1s; }
-.motion #p-cover.active .steps.in li:nth-child(3) { animation-delay: .2s; }
-.motion #p-cover.active .steps.in li:nth-child(4) { animation-delay: .3s; }
 .motion .count-pill.bump { --from: .4; animation: m-pop .4s both; }
 
 @keyframes m-grow { from { transform: scaleX(0); } }
 @keyframes m-fade { from { opacity: 0; } }
-.motion #p-cover.active .facts-board:not(.in) .fact-card,
-.motion #p-cover.active .facts-board:not(.in) .ticks li,
-.motion #p-cover.active .facts-board:not(.in) .sum span { opacity: 0; }
-.motion #p-cover.active .facts-board.in .fact-card { --my: 28px; animation: m-in .45s cubic-bezier(0, 0, .58, 1) both; }
-.motion #p-cover.active .facts-board.in .fact-group:nth-child(2) .fact-card { animation-delay: .24s; }
-.motion #p-cover.active .facts-board.in .fact-card:nth-child(2) { animation-delay: .08s; }
-.motion #p-cover.active .facts-board.in .fact-card:nth-child(3) { animation-delay: .16s; }
-.motion #p-cover.active .facts-board.in .fact-group:nth-child(2) .fact-card:nth-child(2) { animation-delay: .32s; }
-.motion #p-cover.active .facts-board.in .fact-group:nth-child(2) .fact-card:nth-child(3) { animation-delay: .4s; }
-.motion #p-cover.active .facts-board.in .track i { animation: m-grow .7s cubic-bezier(0, 0, .58, 1) .35s both; }
-.motion #p-cover.active .facts-board.in .meter-row + .meter-row .track i { animation-delay: .42s; }
-.motion #p-cover.active .facts-board.in .fact-group:nth-child(2) .track i { animation-delay: .6s; }
-.motion #p-cover.active .facts-board.in .fact-group:nth-child(2) .meter-row + .meter-row .track i { animation-delay: .67s; }
-.motion #p-cover.active .facts-board.in .sum span { animation: m-fade .25s ease-out both; }
-.motion #p-cover.active .facts-board.in .sum span:nth-child(1) { animation-delay: .4s; }
-.motion #p-cover.active .facts-board.in .sum span:nth-child(2) { animation-delay: .55s; }
-.motion #p-cover.active .facts-board.in .sum span:nth-child(3) { animation-delay: .7s; }
-.motion #p-cover.active .facts-board.in .sum span:nth-child(4) { animation-delay: .85s; }
-.motion #p-cover.active .facts-board.in .sum span:nth-child(5) { animation-delay: 1s; }
-.motion #p-cover.active .facts-board.in .ticks li { animation: m-fade .25s ease-out both; }
-.motion #p-cover.active .facts-board.in .ticks svg { --from: .4; animation: m-pop .32s both; }
-.motion #p-cover.active .facts-board.in .ticks li:nth-child(1), .motion #p-cover.active .facts-board.in .ticks li:nth-child(1) svg { animation-delay: .9s; }
-.motion #p-cover.active .facts-board.in .ticks li:nth-child(2), .motion #p-cover.active .facts-board.in .ticks li:nth-child(2) svg { animation-delay: 1.05s; }
-.motion #p-cover.active .facts-board.in .ticks li:nth-child(3), .motion #p-cover.active .facts-board.in .ticks li:nth-child(3) svg { animation-delay: 1.2s; }
+/* sauce: steps wait for the stream; the bottle squeezes while pouring */
+.motion .sauce-steps li:not(.on) { opacity: 0; translate: 0 calc(-50% + 18px); }
+.motion .stream, .motion .stream-edge { stroke-dashoffset: 1; }
+@keyframes squeeze { 50% { scale: .9 1; } }
+.motion .sauce.pouring .bottle { animation: squeeze .7s ease-in-out infinite; }
+.motion .sandwich:not(.sauced) .bun-top .layer-face::before { opacity: 0; scale: 1 .2; }
+/* sandwich builds from the bottom bun up when it scrolls into view */
+@keyframes drop { from { opacity: 0; translate: 0 -60px; } 70% { translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+.motion #p-cover.active .sandwich:not(.in) .layer { opacity: 0; }
+.motion #p-cover.active .sandwich.in .layer { animation: drop .5s cubic-bezier(0, 0, .58, 1) both; }
+.motion #p-cover.active .sandwich.in .layer:nth-child(6) { animation-delay: 0s; }
+.motion #p-cover.active .sandwich.in .layer:nth-child(5) { animation-delay: .12s; }
+.motion #p-cover.active .sandwich.in .layer:nth-child(4) { animation-delay: .24s; }
+.motion #p-cover.active .sandwich.in .layer:nth-child(3) { animation-delay: .36s; }
+.motion #p-cover.active .sandwich.in .layer:nth-child(2) { animation-delay: .48s; }
+.motion #p-cover.active .sandwich.in .layer:nth-child(1) { animation-delay: .6s; }
+/* inside an opened layer: bars grow, the sum builds, ticks check off */
+.motion .layer.open .track i { animation: m-grow .7s cubic-bezier(0, 0, .58, 1) .15s both; }
+.motion .layer.open .meter-row + .meter-row .track i { animation-delay: .22s; }
+.motion .layer.open .sum span { animation: m-fade .25s ease-out both; }
+.motion .layer.open .sum span:nth-child(2) { animation-delay: .15s; }
+.motion .layer.open .sum span:nth-child(3) { animation-delay: .3s; }
+.motion .layer.open .sum span:nth-child(4) { animation-delay: .45s; }
+.motion .layer.open .sum span:nth-child(5) { animation-delay: .6s; }
+.motion .layer.open .ticks li { animation: m-fade .25s ease-out both; }
+.motion .layer.open .ticks svg { --from: .4; animation: m-pop .32s both; }
+.motion .layer.open .ticks li:nth-child(2), .motion .layer.open .ticks li:nth-child(2) svg { animation-delay: .15s; }
+.motion .layer.open .ticks li:nth-child(3), .motion .layer.open .ticks li:nth-child(3) svg { animation-delay: .3s; }
 
 /* ── print: the booklet, or just the shopping list ── */
 @media print {

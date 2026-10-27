@@ -10,7 +10,7 @@ const OUT = "dist";
 const STATIC = [
   "index.html", "404.html", "app.js", "render.js", "recipes.js", "style.css",
   "favicon.svg", "favicon-32.png", "apple-touch-icon.png", "icon-512.png", "og-image.png",
-  "site.webmanifest", "robots.txt",
+  "site.webmanifest", "robots.txt", "media/hero-bowls.mp4", "media/hero-bowls.jpg",
 ];
 
 // Run recipes.js and render.js exactly as the browser would.
@@ -20,7 +20,7 @@ const recipes = ctx.window.RECIPES;
 const { icon, esc, withSlugs, facts, ingredientList, stepTexts, bodyHtml } = vm.runInContext("RecipeKit", ctx);
 
 fs.rmSync(OUT, { recursive: true, force: true });
-fs.mkdirSync(OUT);
+fs.mkdirSync(path.join(OUT, "media"), { recursive: true });
 for (const f of STATIC) fs.copyFileSync(f, path.join(OUT, f));
 
 const describe = (r) => {

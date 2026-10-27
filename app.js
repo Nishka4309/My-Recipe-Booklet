@@ -51,44 +51,98 @@
       caption: "UK adults are advised to eat 30 g of fibre a day, but most eat about 20 g." },
   ];
 
-  // "Good to know" facts. Numbers count up, bars grow and ticks check off when the section
-  // scrolls into view (see .facts-board.in in style.css). Bar widths are percentages.
-  const FACTS = [
-    { group: "Eat well", tone: "eat", items: [
-      { to: 0.8, dec: 1, suf: " g", unit: "protein per kg of body weight, per day", body: "The standard adult guide.",
-        sum: ["65 kg", "×", "0.8", "=", "52 g a day"] },
-      { to: 30, suf: " g", unit: "of fibre a day is the UK target", body: "Beans and chickpeas close the gap.",
-        bars: [["Target", 100, "30 g"], ["Typical adult", 67, "20 g"]] },
-      { to: 16, pre: "~", suf: " g", unit: "protein in 100 g of firm tofu", body: "Paneer is close behind.",
-        bars: [["Paneer", 100, "18 g"], ["Firm tofu", 89, "16 g"]] },
-    ] },
-    { group: "Spend less", tone: "spend", items: [
-      { to: 50, suf: "%", unit: "cheaper per portion: dried vs tinned beans", body: "Often about half the price. Cook a batch and freeze it.",
-        bars: [["Tinned", 100, "100%"], ["Dried", 50, "~50%"]] },
-      { label: "Months", unit: "frozen veg keeps its nutrients", body: "Fresh spinach lasts about a week; frozen lasts months.",
-        bars: [["Fresh", 10, "~1 week"], ["Frozen", 100, "months"]] },
-      { label: "1 list", unit: "for the whole week", body: "Fewer extra trips and fewer impulse buys.",
-        ticks: ["Tofu", "Spinach", "Chickpeas"] },
-    ] },
+  // "Good to know" as a sandwich: each fact is a layer, read top bun to bottom bun.
+  // Each layer opens to say what the fact means day to day and how the booklet helps.
+  // Bar widths are percentages.
+  const LAYERS = [
+    { kind: "bun-top", to: 0.8, dec: 1, suf: " g", fact: "protein per kg of body weight, every day",
+      you: "A 65 kg adult needs about 52 g a day, or roughly 17 g a meal if you spread it evenly.",
+      help: "Every recipe shows its protein up front, and most land between 20 and 35 g a plate.",
+      sum: ["65 kg", "×", "0.8", "=", "52 g a day"] },
+    { kind: "lettuce", to: 30, suf: " g", fact: "of fibre a day is the UK target. Most adults get about 20 g.",
+      you: "Closing that 10 g gap takes about one cup of cooked beans or chickpeas.",
+      help: "The recipes lean on beans, chickpeas and greens, and list fibre wherever we have the figure.",
+      bars: [["Target", 100, "30 g"], ["Typical adult", 67, "20 g"]] },
+    { kind: "tofu", to: 16, pre: "~", suf: " g", fact: "protein in 100 g of firm tofu. Paneer has about 18 g.",
+      you: "A 150 g portion of firm tofu gives about 24 g of protein.",
+      help: "Tofu and paneer are the base of most recipes, so a full plate does the work.",
+      bars: [["Paneer", 100, "18 g"], ["Firm tofu", 89, "16 g"]] },
+    { kind: "cheese", to: 50, suf: "%", fact: "cheaper per portion: dried beans versus tinned",
+      you: "If beans are a weekly staple, buying dried can roughly halve what you spend on them.",
+      help: "The shopping list puts every recipe's beans on one line, so you know how much to cook in one batch.",
+      bars: [["Tinned", 100, "100%"], ["Dried", 50, "~50%"]] },
+    { kind: "spinach", label: "Months", fact: "is how long frozen veg keeps, nutrients and all",
+      you: "Fresh spinach often wilts before it's used. Frozen goes straight from freezer to pan, so less ends up in the bin.",
+      help: "The spinach in these recipes is cooked, so a frozen bag works just as well as fresh.",
+      bars: [["Fresh", 10, "~1 week"], ["Frozen", 100, "months"]] },
+    { kind: "bun-bottom", label: "1 list", fact: "for the whole week's cooking",
+      you: "Fewer top-up trips means less time in shops and fewer impulse buys.",
+      help: "Tap + on the recipes you want and every ingredient merges into one list you can copy or print.",
+      ticks: ["Tofu", "Spinach", "Chickpeas"] },
   ];
   const fmt = (f, v) => `${f.pre || ""}${v.toFixed(f.dec || 0)}${f.suf || ""}`;
   const TICK = `<svg viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="16" height="16"/><path d="M4.5 9.5l3 3 6-7"/></svg>`;
-  function factCard(f) {
+  function layerVisual(f) {
+    if (f.sum) return `<p class="sum">${f.sum.map((t) => `<span>${esc(t)}</span>`).join(" ")}</p>`;
+    if (f.ticks) return `<ul class="ticks">${f.ticks.map((t) => `<li>${TICK}${esc(t)}</li>`).join("")}</ul>`;
+    return `<div class="bars">${f.bars.map(([k, w, v]) => `<div class="meter-row">
+        <span class="meter-label"><span>${esc(k)}</span><b>${esc(v)}</b></span>
+        <span class="track" aria-hidden="true"><i data-w="${w}"></i></span></div>`).join("")}</div>`;
+  }
+  function layer(f, i) {
     const figure = f.label ? esc(f.label)
       : `<span class="sr">${esc(fmt(f, f.to))}</span><span class="num" aria-hidden="true" data-to="${f.to}">${esc(fmt(f, f.to))}</span>`;
-    const bars = f.bars ? `<div class="bars">${f.bars.map(([k, w, v]) => `<div class="meter-row">
-        <span class="meter-label"><span>${esc(k)}</span><b>${esc(v)}</b></span>
-        <span class="track" aria-hidden="true"><i data-w="${w}"></i></span></div>`).join("")}</div>` : "";
-    const sum = f.sum ? `<p class="sum">${f.sum.map((t) => `<span>${esc(t)}</span>`).join(" ")}</p>` : "";
-    const ticks = f.ticks ? `<ul class="ticks">${f.ticks.map((t) => `<li>${TICK}${esc(t)}</li>`).join("")}</ul>` : "";
-    return `<article class="fact-card"><b class="fig">${figure}</b><span class="unit">${esc(f.unit)}</span>${sum}${bars}${ticks}<span class="body">${esc(f.body)}</span></article>`;
+    return `<li class="layer ${f.kind}">
+      <div class="layer-face">
+        <p class="layer-text"><b class="fig">${figure}</b> <span>${esc(f.fact)}</span></p>
+        <button class="btn know" type="button" data-know aria-expanded="false" aria-controls="layer-more-${i}">Know more</button>
+      </div>
+      <div class="layer-more" id="layer-more-${i}" inert>
+        <div class="layer-more-inner">
+          <div><h4>What it means for you</h4><p>${esc(f.you)}</p></div>
+          <div><h4>How the booklet helps</h4><p>${esc(f.help)}</p></div>
+          <div class="layer-visual">${layerVisual(f)}</div>
+        </div>
+      </div>
+    </li>`;
   }
-  const factGroup = (g) => `<div class="fact-group ${g.tone}"><h3 class="facts-group">${esc(g.group)}</h3>
-    <div class="fact-grid">${g.items.map(factCard).join("")}</div></div>`;
+
+  // "How it works" as sauce poured over the sandwich. The stream is drawn as you scroll
+  // (pathLength 1 + dash offset); each step appears when the sauce reaches it.
+  const SAUCE_STEPS = [
+    ["Find a recipe", "Browse the booklet, or generate one from what's in your fridge."],
+    ["Tap +", "Add every recipe you want this week."],
+    ["Shop once", "Ingredients merge into one list. Copy or print it."],
+    ["Cook", "Short, numbered steps. About 20 minutes."],
+  ];
+  const SAUCE_AT = [0.16, 0.38, 0.62, 0.86]; // where each step sits along the flow
+  const BOTTLE = `<svg class="bottle" viewBox="0 0 80 150" aria-hidden="true">
+      <rect class="bottle-body" x="10" y="6" width="60" height="96" rx="16"/>
+      <rect class="bottle-label" x="10" y="38" width="60" height="34"/>
+      <path class="bottle-cap" d="M22 102h36l-6 22H28z"/>
+      <path class="bottle-nozzle" d="M35 124h10l-2 20h-6z"/>
+    </svg>`;
+  function sauceSection() {
+    return `<section class="sauce-section" aria-labelledby="how-title">
+        <div class="section-head"><h2 id="how-title">How it works</h2></div>
+        <div class="sauce">
+          ${BOTTLE}
+          <svg class="sauce-art wide" viewBox="0 0 1000 900" aria-hidden="true">
+            <path class="stream-edge" pathLength="1" d="M500 0C500 80 760 60 760 145C760 245 240 235 240 340C240 450 760 450 760 560C760 670 240 670 240 775C240 850 500 845 500 900"/>
+            <path class="stream" pathLength="1" d="M500 0C500 80 760 60 760 145C760 245 240 235 240 340C240 450 760 450 760 560C760 670 240 670 240 775C240 850 500 845 500 900"/>
+          </svg>
+          <svg class="sauce-art narrow" viewBox="0 0 400 1000" aria-hidden="true">
+            <path class="stream-edge" pathLength="1" d="M60 0C60 80 110 110 110 190C110 300 40 320 40 420C40 530 110 560 110 660C110 770 40 790 40 880C40 940 60 960 60 1000"/>
+            <path class="stream" pathLength="1" d="M60 0C60 80 110 110 110 190C110 300 40 320 40 420C40 530 110 560 110 660C110 770 40 790 40 880C40 940 60 960 60 1000"/>
+          </svg>
+          <ol class="sauce-steps">${SAUCE_STEPS.map(([t, b], i) => `<li class="s${i + 1}" data-at="${SAUCE_AT[i]}"><b>${t === "Tap +" ? `Tap ${icon.plus}` : esc(t)}</b><span>${esc(b)}</span></li>`).join("")}</ol>
+        </div>
+      </section>`;
+  }
 
   // Count a figure up from zero (ease-out cubic, ~0.9 s).
   function countUp(el) {
-    const f = FACTS.flatMap((g) => g.items).find((x) => String(x.to) === el.dataset.to);
+    const f = LAYERS.find((x) => String(x.to) === el.dataset.to);
     const start = performance.now(), dur = 900;
     const tick = (now) => {
       const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
@@ -100,56 +154,39 @@
 
   const proteinNums = (r) => (String(r.protein || "").match(/\d+/g) || []).map(Number);
 
-  const card = (r) => `<a class="card" href="#${r.slug}">
-      <span class="card-top"><span class="card-protein">${proteinShort(r) || "–"}<small>protein</small></span>
-        <span class="card-emoji" aria-hidden="true">${esc(r.emoji || "🍽️")}</span></span>
-      <span class="card-title">${esc(r.title)}</span>
-      <span class="card-meta">${metaLine(r)}</span>
-    </a>`;
-
   function coverPage() {
     const own = recipes.filter((r) => !r.generated);
     const nums = own.flatMap(proteinNums);
     const range = nums.length ? `${Math.min(...nums)}–${Math.max(...nums)} g` : "–";
-    const latest = own.slice(-3).reverse();
     return `<section class="page cover" id="p-cover" aria-labelledby="hero-title">
       <div class="hero">
+        <video class="hero-video" muted loop playsinline preload="none" poster="media/hero-bowls.jpg" aria-hidden="true"></video>
+        <div class="hero-scrim"></div>
         <div class="hero-text">
           <p class="kicker">Vegetarian · high protein</p>
           <h1 id="hero-title"><span class="ln">Weeknight dinners</span> <span class="ln">with real</span> <span class="ln">protein.</span></h1>
           <p class="lede">High-protein vegetarian dinners in about 20 minutes. Pick a few, get one shopping list.</p>
           <div class="hero-cta">
-            <button class="btn primary big" data-go="contents">Browse recipes</button>
-            <button class="btn big" data-go="generate">Generate a recipe</button>
+            <button class="btn big accent" data-go="contents">Browse recipes</button>
+            <button class="btn big invert" data-go="generate">Generate a recipe</button>
           </div>
         </div>
-        <aside class="label" aria-label="At a glance">
-          <p class="label-title">At a glance</p>
-          <div class="label-row label-lead"><span>Protein per plate</span><b>${range}</b></div>
-          <div class="label-row"><span>Cooking time</span><b>~20 min</b></div>
-          <div class="label-row"><span>Built on</span><b>tofu · paneer · beans</b></div>
-          <div class="label-row"><span>Meat</span><b>0 g</b></div>
-        </aside>
       </div>
+      <aside class="label" aria-label="At a glance">
+        <p class="label-title">At a glance</p>
+        <div class="label-row label-lead"><span>Protein per plate</span><b>${range}</b></div>
+        <div class="label-row"><span>Cooking time</span><b>~20 min</b></div>
+        <div class="label-row"><span>Built on</span><b>tofu · paneer · beans</b></div>
+        <div class="label-row"><span>Meat</span><b>0 g</b></div>
+      </aside>
 
-      <section class="band" aria-labelledby="latest-title">
-        <div class="section-head"><h2 id="latest-title">Latest additions</h2><button class="link" data-go="contents">All recipes ${icon.right}</button></div>
-        <div class="cards">${latest.map(card).join("")}</div>
-      </section>
+      ${sauceSection()}
 
-      <section class="band" aria-labelledby="how-title">
-        <div class="section-head"><h2 id="how-title">How it works</h2></div>
-        <ol class="steps">
-          <li><b>Find a recipe</b><span>Browse the booklet, or generate one from what's in your fridge.</span></li>
-          <li><b>Tap ${icon.plus}</b><span>Add every recipe you want this week.</span></li>
-          <li><b>Shop once</b><span>Ingredients merge into one list. Copy or print it.</span></li>
-          <li><b>Cook</b><span>Short, numbered steps. About 20 minutes.</span></li>
-        </ol>
-      </section>
-
-      <section class="band" aria-labelledby="facts-title">
+      <section class="sandwich-section" aria-labelledby="facts-title">
         <div class="section-head"><h2 id="facts-title">Good to know</h2></div>
-        <div class="facts-board">${FACTS.map(factGroup).join("")}</div>
+        <p class="sub">Six facts, stacked. Open any layer to see what it means for you and how the booklet helps.</p>
+        <ol class="sandwich" aria-label="Six facts about eating well and spending less">${LAYERS.map(layer).join("")}</ol>
+        <h3 class="charts-title">The numbers behind it</h3>
         <div class="chart-grid">
           ${CHARTS.map((c) => `<figure class="chart">
             <iframe src="https://public.flourish.studio/visualisation/${c.id}/embed" title="${esc(c.title)}" loading="lazy" scrolling="no"></iframe>
@@ -571,7 +608,9 @@
     book.innerHTML = coverPage() + contentsPage() + recipes.map(recipePage).join("") + listPage() + generatePage() + aboutPage() + (owner ? addPage() : "");
     renderToc();
     book.querySelectorAll(".track i").forEach((i) => i.style.setProperty("--w", i.dataset.w / 100));
-    book.querySelectorAll(".cards, .steps, .facts-board").forEach((el) => revealObserver?.observe(el));
+    book.querySelectorAll(".sandwich").forEach((el) => revealObserver?.observe(el));
+    startHeroVideo();
+    updateSauce();
   }
 
   // Motion (designed in Figma): sections below the fold animate in once they scroll into view.
@@ -584,6 +623,38 @@
     }
   }, { threshold: 0.2 }) : null;
   let lastPickCount = null;
+
+  // Hero footage: only for visitors who allow motion and aren't saving data; others see the still.
+  function startHeroVideo() {
+    const v = book.querySelector(".hero-video");
+    if (!v || !motionOK || (navigator.connection && navigator.connection.saveData)) return;
+    v.muted = true; v.autoplay = true; // browsers only autoplay muted video
+    v.src = "media/hero-bowls.mp4";
+    v.play().catch(() => {});
+  }
+  // Tabs opened in the background can't autoplay; start once the page is visible.
+  document.addEventListener("visibilitychange", () => {
+    const v = book.querySelector(".hero-video");
+    if (document.visibilityState === "visible" && v?.src && v.paused) v.play().catch(() => {});
+  });
+
+  // Sauce pours as "How it works" scrolls through the viewport.
+  function updateSauce() {
+    const sauce = book.querySelector("#p-cover.active .sauce");
+    if (!sauce || !motionOK) return;
+    const r = sauce.getBoundingClientRect();
+    const p = Math.min(1, Math.max(0, (innerHeight * 0.75 - r.top) / r.height));
+    sauce.querySelectorAll(".stream, .stream-edge").forEach((path) => (path.style.strokeDashoffset = 1 - p));
+    sauce.querySelectorAll(".sauce-steps li").forEach((li) => li.classList.toggle("on", p >= +li.dataset.at));
+    sauce.classList.toggle("pouring", p > 0.02 && p < 0.98);
+    book.querySelector(".sandwich")?.classList.toggle("sauced", p >= 0.98);
+  }
+  let saucePending = false;
+  if (motionOK) addEventListener("scroll", () => {
+    if (saucePending) return;
+    saucePending = true;
+    requestAnimationFrame(() => { saucePending = false; updateSauce(); });
+  }, { passive: true });
 
   function current() {
     const id = location.hash.slice(1);
@@ -598,6 +669,7 @@
     const name = r ? r.title : { contents: "All recipes", list: "Shopping list", about: "About", add: "Add a recipe", generate: "Recipe generator" }[id];
     document.title = name ? `${name} · My Recipe Booklet` : "My Recipe Booklet · High-protein vegetarian recipes";
     window.scrollTo(0, 0);
+    updateSauce();
     if (navigated) book.focus({ preventScroll: true });
     navigated = true;
   }
@@ -632,6 +704,16 @@
         added = added.filter((x) => x !== r); store(ADDED, added);
         build(); go("contents");
       }
+    }
+    const know = t.closest("[data-know]");
+    if (know) {
+      const li = know.closest(".layer"), open = !li.classList.contains("open");
+      li.classList.toggle("open", open);
+      know.setAttribute("aria-expanded", open);
+      know.textContent = open ? "Close" : "Know more";
+      const more = li.querySelector(".layer-more");
+      more.inert = !open;
+      if (open) more.querySelectorAll(".track i, .ticks li, .sum span").forEach((el) => { el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; });
     }
     const delGen = t.closest("[data-delete-gen]");
     if (delGen) {
