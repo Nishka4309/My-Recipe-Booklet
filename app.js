@@ -69,7 +69,7 @@
       <div class="hero">
         <div class="hero-text">
           <p class="kicker">Vegetarian · high protein</p>
-          <h1 id="hero-title">Weeknight dinners with real protein.</h1>
+          <h1 id="hero-title"><span class="ln">Weeknight dinners</span> <span class="ln">with real</span> <span class="ln">protein.</span></h1>
           <p class="lede">High-protein vegetarian dinners in about 20 minutes. Pick a few, get one shopping list.</p>
           <div class="hero-cta">
             <button class="btn primary big" data-go="contents">Browse recipes</button>
@@ -284,7 +284,9 @@
       if (b.classList.contains("pick-sm")) b.setAttribute("aria-label", `${b.title}: ${b.dataset.name}`);
     });
     const cart = document.getElementById("cart");
-    cart.innerHTML = `List${picked.size ? ` <span class="count-pill">${picked.size}</span>` : ""}`;
+    const bump = lastPickCount !== null && picked.size > lastPickCount;
+    lastPickCount = picked.size;
+    cart.innerHTML = `List${picked.size ? ` <span class="count-pill${bump ? " bump" : ""}">${picked.size}</span>` : ""}`;
     cart.setAttribute("aria-label", `Shopping list, ${picked.size} recipe${picked.size === 1 ? "" : "s"}`);
     cart.classList.toggle("has", picked.size > 0);
   }
@@ -529,9 +531,19 @@
     cuisines = [...new Set(recipes.map((r) => r.cuisine).filter(Boolean))];
     picked = new Set([...picked].filter((s) => bySlug[s]));
     filter = { q: "", cuisine: "" };
+    revealObserver?.disconnect();
     book.innerHTML = coverPage() + contentsPage() + recipes.map(recipePage).join("") + listPage() + generatePage() + aboutPage() + (owner ? addPage() : "");
     renderToc();
+    book.querySelectorAll(".cards, .steps").forEach((el) => revealObserver?.observe(el));
   }
+
+  // Motion (designed in Figma): sections below the fold animate in once they scroll into view.
+  const motionOK = window.matchMedia && !window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window;
+  if (motionOK) document.documentElement.classList.add("motion");
+  const revealObserver = motionOK ? new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); revealObserver.unobserve(e.target); }
+  }, { threshold: 0.2 }) : null;
+  let lastPickCount = null;
 
   function current() {
     const id = location.hash.slice(1);

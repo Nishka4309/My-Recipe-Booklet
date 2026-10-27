@@ -4,8 +4,8 @@
   "description": "High-protein vegetarian recipes with a built-in shopping list.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f3efe6",
-  "theme_color": "#141414",
+  "background_color": "#e8f0d8",
+  "theme_color": "#2e3b1f",
   "icons": [
     { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
