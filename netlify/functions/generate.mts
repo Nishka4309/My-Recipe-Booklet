@@ -8,7 +8,7 @@ import type { Config } from "@netlify/functions";
 
 // Same shape as a recipe in recipes.js, so the booklet can show it unchanged.
 const Recipe = z.object({
-  title: z.string(),
+  title: z.string().describe("A short, appetising name for the dish, 3 to 8 words, e.g. Smoky Chickpea and Feta Skillet"),
   emoji: z.string(),
   cuisine: z.string(),
   protein: z.string(),
@@ -23,6 +23,7 @@ const Output = z.object({ off_topic: z.boolean(), recipe: Recipe });
 
 const SYSTEM = `You write recipes for My Recipe Booklet, a collection of quick, high-protein vegetarian dinners. Write one recipe that fits the cook's request.
 
+- title is a real dish name of 3 to 8 words, like "Smoky Chickpea and Feta Skillet".
 - Vegetarian only: no meat, poultry, fish or seafood. Use eggs only if the cook asks for them. Dairy is fine unless they rule it out.
 - Aim for at least 20 g of protein per serving, from foods like tofu, paneer, tempeh, beans, lentils, chickpeas, edamame or Greek yogurt.
 - protein and fibre are honest estimates per serving, written like "~25g" or "~8g".
@@ -74,7 +75,7 @@ export default async (req: Request) => {
     if (!out || response.stop_reason === "max_tokens") {
       return Response.json({ error: "The recipe came out incomplete. Please try again." }, { status: 502 });
     }
-    if (out.off_topic || !out.recipe.title) {
+    if (out.off_topic || out.recipe.title.trim().length < 4 || !out.recipe.ingredients.length) {
       return Response.json({ error: "That doesn't sound like a meal. Try listing some ingredients." }, { status: 422 });
     }
     return Response.json({ recipe: out.recipe });
