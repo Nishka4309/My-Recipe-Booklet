@@ -104,7 +104,7 @@
         <div class="section-head"><h2 id="facts-title">Good to know</h2></div>
         <div class="chart-grid">
           ${CHARTS.map((c) => `<figure class="chart">
-            <iframe src="https://flo.uk/visualisation/${c.id}/embed" title="${esc(c.title)}" loading="lazy" scrolling="no"></iframe>
+            <iframe src="https://public.flourish.studio/visualisation/${c.id}/embed" title="${esc(c.title)}" loading="lazy" scrolling="no"></iframe>
             <figcaption>${esc(c.caption)}</figcaption>
           </figure>`).join("")}
         </div>
