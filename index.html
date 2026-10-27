@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Recipe Booklet · High-protein vegetarian recipes</title>
-  <meta name="description" content="Quick, high-protein vegetarian recipes — tofu, paneer, beans and more, with protein and fibre for every dish and a shopping list that builds itself.">
+  <meta name="description" content="Quick, high-protein vegetarian recipes — tofu, paneer, beans and more, each with a protein estimate and a shopping list that builds itself.">
   <link rel="canonical" href="https://my-recipe-booklet.netlify.app/">
   <meta name="theme-color" content="#c2502e">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -15,7 +15,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="My Recipe Booklet">
   <meta property="og:title" content="My Recipe Booklet · High-protein vegetarian recipes">
-  <meta property="og:description" content="Quick, high-protein vegetarian recipes with protein and fibre for every dish — and a shopping list that builds itself.">
+  <meta property="og:description" content="Quick, high-protein vegetarian recipes each with a protein estimate — and a shopping list that builds itself.">
   <meta property="og:url" content="https://my-recipe-booklet.netlify.app/">
   <meta property="og:image" content="https://my-recipe-booklet.netlify.app/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="style.css">
   <script src="recipes.js" defer></script>
+  <script src="render.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -35,7 +36,7 @@
     <a class="bar-title" href="#" aria-label="My Recipe Booklet, home"><img src="favicon.svg" alt="" width="26" height="26"> Recipe Booklet</a>
     <nav class="bar-actions" aria-label="Main">
       <button class="btn" data-go="contents">Recipes</button>
-      <button class="btn cart" id="cart" data-go="list" aria-label="Shopping list">🛒 List</button>
+      <button class="btn cart" id="cart" data-go="list">🛒 List</button>
       <button class="btn" id="print">Print</button>
     </nav>
   </header>

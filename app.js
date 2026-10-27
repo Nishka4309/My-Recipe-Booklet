@@ -1,7 +1,5 @@
 (function () {
-  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const slugify = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const { esc, withSlugs, stats, metaLine, bodyHtml } = window.RecipeKit;
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
   const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -16,40 +14,36 @@
     history.replaceState(null, "", location.pathname + location.hash);
   }
   const owner = load("recipe-booklet-owner", false);
+  const pickFromLink = params.get("pick");
+  if (pickFromLink) history.replaceState(null, "", location.pathname + location.hash);
   const FILE = window.RECIPES || [];
+  const isRecipe = (r) => r && typeof r.title === "string" && r.title.trim();
+  const loadList = (k) => { const v = load(k, []); return Array.isArray(v) ? v : []; };
 
   // Recipes added on the website live in this browser until exported into recipes.js.
   // Once a recipe with the same title is in the file, the browser copy is dropped.
   const ADDED = "recipe-booklet-added";
   const inFile = new Set(FILE.map((r) => r.title.trim().toLowerCase()));
-  let added = load(ADDED, []).filter((r) => !inFile.has(r.title.trim().toLowerCase()));
+  let added = loadList(ADDED).filter(isRecipe).filter((r) => !inFile.has(r.title.trim().toLowerCase()));
   store(ADDED, added);
 
   const PICKED = "recipe-booklet-picked";
-  let picked = new Set(load(PICKED, []));
+  let picked = new Set(loadList(PICKED).filter((s) => typeof s === "string"));
   const savePicked = () => store(PICKED, [...picked]);
 
   let recipes = [], bySlug = {}, cuisines = [];
   let filter = { q: "", cuisine: "" };
   let editingId = null;
 
-  const stats = (r) => [
-    r.cuisine && `<span class="stat">${esc(r.cuisine)}</span>`,
-    r.protein && `<span class="stat"><b>Protein</b> ${esc(r.protein)}</span>`,
-    r.fibre && `<span class="stat"><b>Fibre</b> ${esc(r.fibre)}</span>`,
-    r.time && `<span class="stat"><b>Time</b> ${esc(r.time)}</span>`,
-    r.makes && `<span class="stat"><b>Makes</b> ${esc(r.makes)}</span>`,
-  ].filter(Boolean).join("");
-
   const pickBtn = (r, small) =>
-    `<button class="btn pick${small ? " pick-sm" : ""}" data-pick="${r.slug}" aria-pressed="false"></button>`;
+    `<button class="btn pick${small ? " pick-sm" : ""}" data-pick="${r.slug}" data-name="${esc(r.title)}" aria-pressed="false"></button>`;
 
   const proteinMax = (r) => Math.max(0, ...(String(r.protein || "").match(/\d+/g) || []).map(Number));
 
   const card = (r) => `<a class="card" href="#${r.slug}">
       <span class="card-emoji">${esc(r.emoji || "🍽️")}</span>
       <span class="card-title">${esc(r.title)}</span>
-      <span class="card-meta">${[r.cuisine, r.protein && r.protein + " protein"].filter(Boolean).map(esc).join(" · ")}</span>
+      <span class="card-meta">${metaLine(r)}</span>
     </a>`;
 
   function coverPage() {
@@ -59,7 +53,7 @@
       <div class="hero">
         <p class="eyebrow">High-protein · vegetarian · weeknight-fast</p>
         <h1 id="hero-title">Eat well.<br>Hit your protein.</h1>
-        <p class="lede">${recipes.length} simple recipes built around tofu, paneer, beans and Greek yogurt — with protein and fibre for every dish, up to ~${top}g a plate.</p>
+        <p class="lede">${recipes.length} simple recipes built around tofu, paneer, beans and Greek yogurt — each with a protein estimate, up to ~${top}g a plate.</p>
         <div class="hero-cta">
           <button class="btn primary big" data-go="contents">Browse recipes →</button>
           <button class="btn big" data-go="list">Build a shopping list</button>
@@ -118,18 +112,13 @@
       ? list.map((r) => `<li><a href="#${r.slug}">
           <span class="toc-emoji">${esc(r.emoji || "🍽️")}</span>
           <span><span class="toc-title">${esc(r.title)}</span>
-            <span class="toc-meta">${[r.cuisine, r.protein && "Protein " + r.protein].filter(Boolean).map(esc).join(" · ")}</span></span>
+            <span class="toc-meta">${metaLine(r)}</span></span>
           <span class="toc-num">${r.n}</span></a>${pickBtn(r, true)}</li>`).join("")
       : `<li class="empty">No recipes match.</li>`;
     syncPicks();
   }
 
   function recipePage(r) {
-    const ing = (r.ingredients || []).map((x) => x.startsWith("## ")
-      ? `<li class="ing-head">${esc(x.slice(3))}</li>`
-      : `<li><label><input type="checkbox"><span>${esc(x)}</span></label></li>`).join("");
-    const steps = (r.method || []).map((x) => typeof x === "string" ? `<li>${esc(x)}</li>`
-      : `<li><b class="step-title">${esc(x.step)}</b>${[].concat(x.text).map((t) => `<p>${esc(t)}</p>`).join("")}</li>`).join("");
     const own = owner && r.custom ? `<span class="own">Added in this browser
         <button class="link" data-edit="${esc(r.id)}">Edit</button>
         <button class="link danger" data-delete="${esc(r.id)}">Delete</button></span>` : "";
@@ -139,13 +128,9 @@
         <div class="recipe-no">Recipe ${r.n}</div>
         <h2><span class="e">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h2>
         <div class="stats">${stats(r)}</div>
-        <div class="head-pick">${pickBtn(r)}</div>
+        <div class="head-pick">${pickBtn(r)}${r.custom ? "" : `<button class="btn" data-share="${r.slug}">Share</button>`}</div>
       </div>
-      <div class="cols">
-        <div><h3>Ingredients</h3><ul class="ingredients">${ing}</ul></div>
-        <div><h3>Method</h3><ol class="method">${steps}</ol>
-          ${r.tip ? `<div class="tip"><b>Tip:</b> ${esc(r.tip)}</div>` : ""}</div>
-      </div>
+      ${bodyHtml(r)}
       <div class="folio">— ${r.n} —</div>
     </section>`;
   }
@@ -229,11 +214,28 @@
       b.textContent = b.classList.contains("pick-sm") ? (on ? "✓" : "＋")
         : (on ? "✓ On shopping list" : "＋ Add to shopping list");
       b.title = on ? "Remove from shopping list" : "Add to shopping list";
+      if (b.classList.contains("pick-sm")) b.setAttribute("aria-label", `${b.title}: ${b.dataset.name}`);
     });
     const cart = document.getElementById("cart");
     cart.textContent = `🛒 List${picked.size ? ` (${picked.size})` : ""}`;
     cart.classList.toggle("has", picked.size > 0);
   }
+
+  // Copies text, falling back to a hidden textarea where the Clipboard API is missing
+  // (e.g. when the booklet is opened as a local file).
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", ""); ta.className = "offscreen";
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return ok ? Promise.resolve() : Promise.reject(new Error("copy failed"));
+  }
+  const flash = (btn, ok, label) => {
+    btn.textContent = ok ? "Copied ✓" : "Couldn't copy";
+    setTimeout(() => (btn.textContent = label), 1500);
+  };
 
   // ── adding recipes ──
   function addPage() {
@@ -286,9 +288,11 @@
   const tidySteps = (steps) => steps.map((x) => typeof x === "string" ? x
     : !x.text.length ? x.step : { step: x.step, text: x.text.length === 1 ? x.text[0] : x.text });
 
+  const FIELDS = ["title", "emoji", "cuisine", "protein", "fibre", "time", "makes", "tip"];
+
   function fillForm(r) {
     const form = book.querySelector("#rform");
-    ["title", "emoji", "cuisine", "protein", "fibre", "time", "makes", "tip"].forEach((k) => (form[k].value = r[k] || ""));
+    FIELDS.forEach((k) => (form[k].value = r[k] || ""));
     form.ingredients.value = (r.ingredients || []).join("\n");
     form.method.value = methodToText(r.method);
   }
@@ -296,7 +300,7 @@
   function readForm() {
     const form = book.querySelector("#rform");
     const r = {};
-    ["title", "emoji", "cuisine", "protein", "fibre", "time", "makes", "tip"].forEach((k) => {
+    FIELDS.forEach((k) => {
       const v = form[k].value.trim(); if (v) r[k] = v;
     });
     r.ingredients = form.ingredients.value.split("\n").map((l) => l.trim().replace(/^[*•-]\s+/, "")).filter(Boolean);
@@ -385,45 +389,15 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
-  // Recipe data search engines can read (schema.org/Recipe).
-  function structuredData() {
-    const base = location.origin + location.pathname;
-    const steps = (m) => (m || []).flatMap((x) => typeof x === "string" ? [x] : [x.step + ": " + [].concat(x.text).join(" ")]);
-    const data = {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      itemListElement: recipes.filter((r) => !r.custom).map((r, i) => ({
-        "@type": "ListItem", position: i + 1, url: base + "#" + r.slug,
-        item: {
-          "@type": "Recipe", name: r.title, recipeCuisine: r.cuisine, keywords: "high protein, vegetarian",
-          recipeYield: r.makes, recipeIngredient: (r.ingredients || []).filter((x) => !x.startsWith("## ")),
-          recipeInstructions: steps(r.method).map((t) => ({ "@type": "HowToStep", text: t })),
-          nutrition: { "@type": "NutritionInformation", proteinContent: r.protein, fiberContent: r.fibre },
-        },
-      })),
-    };
-    let el = document.getElementById("ld");
-    if (!el) { el = document.createElement("script"); el.type = "application/ld+json"; el.id = "ld"; document.head.appendChild(el); }
-    el.textContent = JSON.stringify(data);
-  }
-
   // ── building & routing ──
   function build() {
-    const used = new Set();
-    recipes = [...FILE, ...(owner ? added : []).map((r) => ({ ...r, custom: true }))].map((r, i) => {
-      const base = slugify(r.title) || "recipe";
-      let slug = base, k = 2;
-      while (used.has(slug)) slug = `${base}-${k++}`;
-      used.add(slug);
-      return { ...r, n: i + 1, slug };
-    });
+    recipes = withSlugs([...FILE, ...(owner ? added : []).map((r) => ({ ...r, custom: true }))]);
     bySlug = Object.fromEntries(recipes.map((r) => [r.slug, r]));
     cuisines = [...new Set(recipes.map((r) => r.cuisine).filter(Boolean))];
     picked = new Set([...picked].filter((s) => bySlug[s]));
     filter = { q: "", cuisine: "" };
     book.innerHTML = coverPage() + contentsPage() + recipes.map(recipePage).join("") + listPage() + aboutPage() + (owner ? addPage() : "");
     renderToc();
-    structuredData();
   }
 
   function current() {
@@ -490,10 +464,13 @@
     }
     if (t.closest("#clear")) { picked.clear(); savePicked(); syncPicks(); renderList(); }
     const copy = t.closest("#copy");
-    if (copy) {
-      navigator.clipboard.writeText(listAsText()).then(
-        () => { copy.textContent = "Copied ✓"; setTimeout(() => (copy.textContent = "Copy list"), 1500); },
-        () => { copy.textContent = "Couldn't copy"; });
+    if (copy) copyText(listAsText()).then(() => flash(copy, true, "Copy list"), () => flash(copy, false, "Copy list"));
+    const share = t.closest("[data-share]");
+    if (share) {
+      const r = bySlug[share.dataset.share];
+      const url = `${location.origin}/recipes/${r.slug}/`;
+      if (navigator.share) navigator.share({ title: r.title, url }).catch(() => {});
+      else copyText(url).then(() => flash(share, true, "Share"), () => flash(share, false, "Share"));
     }
     const c = t.closest("[data-cuisine]");
     if (c) {
@@ -521,5 +498,6 @@
   window.addEventListener("hashchange", show);
 
   build();
+  if (pickFromLink && bySlug[pickFromLink]) { picked.add(pickFromLink); savePicked(); syncPicks(); }
   show();
 })();

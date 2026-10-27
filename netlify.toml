@@ -1,18 +1,6 @@
 [build]
-  publish = "."
-
-# Keep repo-only files off the public site.
-[[redirects]]
-  from = "/README.md"
-  to = "/404.html"
-  status = 404
-  force = true
-
-[[redirects]]
-  from = "/netlify.toml"
-  to = "/404.html"
-  status = 404
-  force = true
+  command = "node build.mjs"
+  publish = "dist"
 
 [[headers]]
   for = "/*"

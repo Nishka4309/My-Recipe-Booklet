@@ -11,7 +11,10 @@ to show **＋ Add a recipe** there; `?owner=off` hides it again.
 
 ## Files
 - `recipes.js` — **all your recipes live here.** This is the only file you need to edit.
-- `index.html`, `style.css`, `app.js` — the booklet website itself.
+- `index.html`, `style.css`, `app.js`, `render.js` — the booklet website itself.
+- `build.mjs` — Netlify runs this on every deploy. It copies the site into `dist/` and adds a
+  search-friendly page for each recipe at `/recipes/<recipe-name>/`, plus `sitemap.xml`.
+  Run `node build.mjs` to build it locally.
 
 ## Adding a recipe on the website
 In owner mode, tap **＋ Add a recipe** on the Recipes page. Paste the recipe, tap **Fill in the form**, check the fields and save.

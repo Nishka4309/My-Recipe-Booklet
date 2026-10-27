@@ -273,3 +273,9 @@ code { font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border
 .notfound { text-align: center; padding-top: 120px; }
 .notfound .btn { display: inline-block; text-decoration: none; margin-top: 8px; }
 #p-about h2 { margin-bottom: 20px; }
+.offscreen { position: fixed; left: -9999px; top: 0; }
+.head-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.head-pick a.btn { text-decoration: none; }
+.recipe-head h1 { font: 700 clamp(28px, 5vw, 40px)/1.15 var(--serif); margin: 6px 0 16px; }
+.recipe-head h1 .e { margin-right: 10px; }
+.bar-actions a.btn { text-decoration: none; }
