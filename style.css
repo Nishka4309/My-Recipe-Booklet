@@ -150,13 +150,14 @@ html { overflow-x: clip; }
 
 /* How it works: sauce poured from a squeeze bottle; steps sit along the stream. */
 .sauce-section { padding: 72px 0 0; }
-.sauce { position: relative; max-width: 1000px; margin: 0 auto; }
+.sauce { position: relative; max-width: 1000px; margin: 150px auto 0; }
 .sauce-art { display: block; width: 100%; height: auto; overflow: visible; }
 .sauce-art.narrow { display: none; }
 .stream, .stream-edge { fill: none; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 .stream-edge { stroke: var(--brown); stroke-width: 34; }
 .stream { stroke: var(--yellow); stroke-width: 24; }
-.bottle { position: absolute; left: 50%; top: -128px; width: 64px; translate: -50% 0; transform-origin: 50% 0; }
+/* the bottle's nozzle tip sits at 96% of its height, right where the stream starts */
+.bottle { position: absolute; left: 50%; top: -216px; width: 120px; translate: -50% 0; transform-origin: 50% 0; }
 .bottle-body { fill: var(--yellow); stroke: #2e3b1f; stroke-width: 4; }
 .bottle-label { fill: #e8f0d8; stroke: #2e3b1f; stroke-width: 4; }
 .bottle-cap, .bottle-nozzle { fill: #2e3b1f; }
@@ -415,7 +416,8 @@ code { font: .9em var(--mono); background: var(--surface); padding: 1px 5px; bor
   .chart-grid { grid-template-columns: 1fr; }
   .sauce-art.wide { display: none; }
   .sauce-art.narrow { display: block; }
-  .bottle { left: 15%; top: -110px; width: 52px; }
+  .bottle { left: 15%; top: -162px; width: 88px; }
+  .sauce { margin-top: 170px; }
   .sauce-steps li { width: 62%; left: 34% !important; }
   .sauce-steps .s1 { top: 19%; } .sauce-steps .s2 { top: 42%; } .sauce-steps .s3 { top: 66%; } .sauce-steps .s4 { top: 88%; }
   .sauce-steps li::before { font-size: 30px; }
