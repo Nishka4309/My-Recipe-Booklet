@@ -43,13 +43,27 @@
   const pickBtn = (r, small) =>
     `<button class="btn pick${small ? " pick-sm" : ""}" data-pick="${r.slug}" data-name="${esc(r.title)}" aria-pressed="false"></button>`;
 
-  // Flourish charts for the "Good to know" section, each with a plain-text summary.
-  const CHARTS = [
-    { id: 30703692, title: "Bar chart: protein per 100 g of common vegetarian foods",
-      caption: "Paneer has about 18 g of protein per 100 g and firm tofu about 16 g. Edamame, Greek yogurt, lentils, chickpeas and kidney beans have 9 to 12 g." },
-    { id: 30703693, title: "Bar chart: daily fibre target compared with typical intake",
-      caption: "UK adults are advised to eat 30 g of fibre a day, but most eat about 20 g." },
+  // "The numbers behind it": bar charts whose bars are the foods themselves, drawn in CSS.
+  const FOOD_CHARTS = [
+    { title: "Protein per 100 g", note: "Common vegetarian protein foods, approximate values",
+      source: "USDA FoodData Central; Indian Food Composition Tables (paneer)",
+      rows: [["Paneer", 18, "paneer"], ["Firm tofu", 16, "tofu"], ["Edamame, cooked", 12, "edamame"], ["Greek yogurt, plain", 10, "yogurt"],
+        ["Lentils, cooked", 9, "lentils"], ["Chickpeas, cooked", 9, "chickpeas"], ["Kidney beans, cooked", 9, "kidney"]] },
+    { title: "Fibre: the 10 g gap", note: "Grams of fibre a day for UK adults",
+      source: "NHS",
+      rows: [["UK daily target", 30, "beans"], ["What most adults eat", 20, "beans"]] },
   ];
+  function foodChart(c) {
+    const max = Math.max(...c.rows.map((r) => r[1]));
+    return `<figure class="food-chart">
+      <figcaption><h4>${esc(c.title)}</h4><p>${esc(c.note)}</p></figcaption>
+      <ol class="food-rows">${c.rows.map(([name, g, kind]) => `<li>
+        <span class="food-name">${esc(name)}</span>
+        <span class="food-track"><i class="food-bar ${kind}" data-f="${(g / max).toFixed(3)}" aria-hidden="true"></i><b>${g} g</b></span>
+      </li>`).join("")}</ol>
+      <p class="fine">Source: ${esc(c.source)}</p>
+    </figure>`;
+  }
 
   // "Good to know" as a sandwich: each fact is a layer, read top bun to bottom bun.
   // Each layer opens to say what the fact means day to day and how the booklet helps.
@@ -187,12 +201,7 @@
         <p class="sub">Six facts, stacked. Open any layer to see what it means for you and how the booklet helps.</p>
         <ol class="sandwich" aria-label="Six facts about eating well and spending less">${LAYERS.map(layer).join("")}</ol>
         <h3 class="charts-title">The numbers behind it</h3>
-        <div class="chart-grid">
-          ${CHARTS.map((c) => `<figure class="chart">
-            <iframe src="https://public.flourish.studio/visualisation/${c.id}/embed" title="${esc(c.title)}" loading="lazy" scrolling="no"></iframe>
-            <figcaption>${esc(c.caption)}</figcaption>
-          </figure>`).join("")}
-        </div>
+        <div class="food-charts">${FOOD_CHARTS.map(foodChart).join("")}</div>
         <p class="fine sources">Sources: NHS (fibre), US Dietary Reference Intakes (protein), USDA FoodData Central and Indian Food Composition Tables (protein in foods). Figures are general guides, not personal advice.</p>
       </section>
 
@@ -608,7 +617,8 @@
     book.innerHTML = coverPage() + contentsPage() + recipes.map(recipePage).join("") + listPage() + generatePage() + aboutPage() + (owner ? addPage() : "");
     renderToc();
     book.querySelectorAll(".track i").forEach((i) => i.style.setProperty("--w", i.dataset.w / 100));
-    book.querySelectorAll(".sandwich").forEach((el) => revealObserver?.observe(el));
+    book.querySelectorAll(".food-bar").forEach((i) => i.style.setProperty("--f", i.dataset.f));
+    book.querySelectorAll(".sandwich, .food-charts").forEach((el) => revealObserver?.observe(el));
     startHeroVideo();
     updateSauce();
   }
