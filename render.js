@@ -55,5 +55,16 @@
           ${r.tip ? `<div class="tip"><b>Tip:</b> ${esc(r.tip)}</div>` : ""}</div>
       </div>`;
 
-  g.RecipeKit = { esc, slugify, RESERVED, withSlugs, facts, proteinShort, metaLine, ingredientList, stepTexts, bodyHtml };
+  // Interface icons as inline SVG (stroke follows the text colour), never emoji.
+  const svg = (d) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
+  const icon = {
+    plus: svg("M12 5v14M5 12h14"),
+    check: svg("M5 12.5l4.5 4.5L19 7.5"),
+    left: svg("M19 12H5M11 6l-6 6 6 6"),
+    right: svg("M5 12h14M13 6l6 6-6 6"),
+    close: svg("M6 6l12 12M18 6L6 18"),
+    share: svg("M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"),
+  };
+
+  g.RecipeKit = { icon, esc, slugify, RESERVED, withSlugs, facts, proteinShort, metaLine, ingredientList, stepTexts, bodyHtml };
 })(globalThis);

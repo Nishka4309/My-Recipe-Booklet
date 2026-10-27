@@ -1,5 +1,5 @@
 (function () {
-  const { esc, withSlugs, facts, proteinShort, metaLine, bodyHtml } = window.RecipeKit;
+  const { icon, esc, withSlugs, facts, proteinShort, metaLine, bodyHtml } = window.RecipeKit;
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
   const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -43,6 +43,14 @@
   const pickBtn = (r, small) =>
     `<button class="btn pick${small ? " pick-sm" : ""}" data-pick="${r.slug}" data-name="${esc(r.title)}" aria-pressed="false"></button>`;
 
+  // Flourish charts for the "Good to know" section, each with a plain-text summary.
+  const CHARTS = [
+    { id: 30703692, title: "Bar chart: protein per 100 g of common vegetarian foods",
+      caption: "Paneer has about 18 g of protein per 100 g and firm tofu about 16 g. Edamame, Greek yogurt, lentils, chickpeas and kidney beans have 9 to 12 g." },
+    { id: 30703693, title: "Bar chart: daily fibre target compared with typical intake",
+      caption: "UK adults are advised to eat 30 g of fibre a day, but most eat about 20 g." },
+  ];
+
   const proteinNums = (r) => (String(r.protein || "").match(/\d+/g) || []).map(Number);
 
   const card = (r) => `<a class="card" href="#${r.slug}">
@@ -78,7 +86,7 @@
       </div>
 
       <section class="band" aria-labelledby="latest-title">
-        <div class="section-head"><h2 id="latest-title">Latest additions</h2><button class="link" data-go="contents">All recipes →</button></div>
+        <div class="section-head"><h2 id="latest-title">Latest additions</h2><button class="link" data-go="contents">All recipes ${icon.right}</button></div>
         <div class="cards">${latest.map(card).join("")}</div>
       </section>
 
@@ -86,7 +94,7 @@
         <div class="section-head"><h2 id="how-title">How it works</h2></div>
         <ol class="steps">
           <li><b>Find a recipe</b><span>Browse the booklet, or generate one from what's in your fridge.</span></li>
-          <li><b>Tap ＋</b><span>Add every recipe you want this week.</span></li>
+          <li><b>Tap ${icon.plus}</b><span>Add every recipe you want this week.</span></li>
           <li><b>Shop once</b><span>Ingredients merge into one list. Copy or print it.</span></li>
           <li><b>Cook</b><span>Short, numbered steps. About 20 minutes.</span></li>
         </ol>
@@ -94,11 +102,17 @@
 
       <section class="band" aria-labelledby="facts-title">
         <div class="section-head"><h2 id="facts-title">Good to know</h2></div>
+        <div class="chart-grid">
+          ${CHARTS.map((c) => `<figure class="chart">
+            <iframe src="https://flo.uk/visualisation/${c.id}/embed" title="${esc(c.title)}" loading="lazy" scrolling="no"></iframe>
+            <figcaption>${esc(c.caption)}</figcaption>
+          </figure>`).join("")}
+        </div>
         <h3 class="facts-group">Eat well</h3>
         <div class="fact-grid">
           <div class="fact-card"><b>0.8 g</b><span>protein per kg of body weight a day is the standard adult guide. A 65 kg adult needs about 52 g.</span></div>
           <div class="fact-card"><b>30 g</b><span>of fibre a day is the UK target. Most adults eat closer to 20 g. Beans and chickpeas close the gap.</span></div>
-          <div class="fact-card"><b>~15 g</b><span>protein in 100 g of firm tofu. Paneer has about 18 g.</span></div>
+          <div class="fact-card"><b>~16 g</b><span>protein in 100 g of firm tofu. Paneer has about 18 g.</span></div>
         </div>
         <h3 class="facts-group">Spend less</h3>
         <div class="fact-grid">
@@ -106,7 +120,7 @@
           <div class="fact-card"><b>Months</b><span>Frozen spinach and veg keep their nutrients and last that long, so less ends up in the bin.</span></div>
           <div class="fact-card"><b>1 list</b><span>Shopping for the whole week from one list means fewer extra trips and fewer impulse buys.</span></div>
         </div>
-        <p class="fine sources">Sources: NHS (fibre), US Dietary Reference Intakes (protein), USDA FoodData Central (tofu, paneer). Figures are general guides, not personal advice.</p>
+        <p class="fine sources">Sources: NHS (fibre), US Dietary Reference Intakes (protein), USDA FoodData Central and Indian Food Composition Tables (protein in foods). Figures are general guides, not personal advice.</p>
       </section>
 
       <section class="cta-band">
@@ -121,7 +135,7 @@
 
   function aboutPage() {
     return `<section class="page" id="p-about">
-      <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button></div>
+      <div class="page-top"><button class="btn back" data-go="contents">${icon.left} All recipes</button></div>
       <p class="kicker">About</p>
       <h2 class="page-title">A booklet of high-protein vegetarian dinners.</h2>
       <div class="prose">
@@ -142,8 +156,8 @@
         <button class="btn" data-export>Download recipes.js</button></div>` : "";
     return `<section class="page" id="p-contents">
       <div class="title-row"><h2 class="page-title">Recipes</h2>
-        ${owner ? `<button class="btn primary" data-new>＋ Add a recipe</button>` : ""}</div>
-      <p class="sub">Open a recipe, or tap ＋ to put it on your shopping list.</p>
+        ${owner ? `<button class="btn primary" data-new>${icon.plus} Add a recipe</button>` : ""}</div>
+      <p class="sub">Open a recipe, or tap ${icon.plus} to put it on your shopping list.</p>
       ${unsaved}
       <div class="controls">
         <input class="search" type="search" placeholder="Search recipes or ingredients…" aria-label="Search">
@@ -176,12 +190,12 @@
         <button class="link" data-edit="${esc(r.id)}">Edit</button>
         <button class="link danger" data-delete="${esc(r.id)}">Delete</button></span>` : "";
     return `<section class="page" id="p-${r.slug}">
-      <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button>${own}</div>
+      <div class="page-top"><button class="btn back" data-go="contents">${icon.left} All recipes</button>${own}</div>
       <div class="recipe-head">
         <p class="kicker">Recipe ${String(r.n).padStart(2, "0")}${r.cuisine ? ` · ${esc(r.cuisine)}` : ""}</p>
         <h2><span class="e" aria-hidden="true">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h2>
         ${facts(r)}
-        <div class="head-pick">${pickBtn(r)}${r.custom || r.generated ? "" : `<button class="btn" data-share="${r.slug}">Share</button>`}</div>
+        <div class="head-pick">${pickBtn(r)}${r.custom || r.generated ? "" : `<button class="btn" data-share="${r.slug}">${icon.share}<span>Share</span></button>`}</div>
         ${r.generated ? `<p class="ai-note">Written by AI from your request. Check ingredients for allergies, and treat the nutrition numbers as rough estimates.</p>` : ""}
       </div>
       ${bodyHtml(r)}
@@ -214,7 +228,7 @@
 
   function listPage() {
     return `<section class="page" id="p-list">
-      <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button></div>
+      <div class="page-top"><button class="btn back" data-go="contents">${icon.left} All recipes</button></div>
       <p class="kicker">Shopping list</p>
       <h2 class="page-title">Everything to buy, in one list.</h2>
       <div class="list-body"></div>
@@ -225,7 +239,7 @@
     const body = book.querySelector("#p-list .list-body");
     const chosen = recipes.filter((r) => picked.has(r.slug));
     if (!chosen.length) {
-      body.innerHTML = `<div class="empty-list"><p>Nothing here yet. Tap ＋ on a recipe to add its ingredients.</p>
+      body.innerHTML = `<div class="empty-list"><p>Nothing here yet. Tap ${icon.plus} on a recipe to add its ingredients.</p>
         <button class="btn primary" data-go="contents">Choose recipes</button></div>`;
       return;
     }
@@ -233,7 +247,7 @@
     body.innerHTML = `
       <div class="chosen">${chosen.map((r) =>
         `<span class="chosen-chip">${esc(r.emoji || "🍽️")} ${esc(r.title)}
-          <button data-pick="${r.slug}" aria-label="Remove ${esc(r.title)}">×</button></span>`).join("")}</div>
+          <button data-pick="${r.slug}" aria-label="Remove ${esc(r.title)}">${icon.close}</button></span>`).join("")}</div>
       <div class="list-actions">
         <span class="count">${items.length} items · ${chosen.length} recipe${chosen.length === 1 ? "" : "s"}</span>
         <span><button class="btn" id="copy">Copy list</button>
@@ -264,8 +278,8 @@
       const on = picked.has(b.dataset.pick);
       b.classList.toggle("on", on);
       b.setAttribute("aria-pressed", on);
-      b.textContent = b.classList.contains("pick-sm") ? (on ? "✓" : "＋")
-        : (on ? "✓ On shopping list" : "＋ Add to shopping list");
+      b.innerHTML = b.classList.contains("pick-sm") ? (on ? icon.check : icon.plus)
+        : (on ? `${icon.check} On shopping list` : `${icon.plus} Add to shopping list`);
       b.title = on ? "Remove from shopping list" : "Add to shopping list";
       if (b.classList.contains("pick-sm")) b.setAttribute("aria-label", `${b.title}: ${b.dataset.name}`);
     });
@@ -287,7 +301,7 @@
     return ok ? Promise.resolve() : Promise.reject(new Error("copy failed"));
   }
   const flash = (btn, ok, label) => {
-    btn.textContent = ok ? "Copied ✓" : "Couldn't copy";
+    btn.textContent = ok ? "Copied" : "Couldn't copy";
     setTimeout(() => (btn.textContent = label), 1500);
   };
 
@@ -296,7 +310,7 @@
     const opts = (name, label, values, any) => `<label class="f"><span>${label}</span><select name="${name}">
         <option value="">${any}</option>${values.map((v) => `<option>${v}</option>`).join("")}</select></label>`;
     return `<section class="page" id="p-generate">
-      <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button></div>
+      <div class="page-top"><button class="btn back" data-go="contents">${icon.left} All recipes</button></div>
       <p class="kicker">Recipe generator</p>
       <h2 class="page-title">Make a recipe from what you have.</h2>
       <p class="sub">Say what's in your fridge or what you feel like eating. You'll get a vegetarian recipe with at least 20 g of protein, written by AI.</p>
@@ -357,7 +371,7 @@
     const f = (name, label, ph) =>
       `<label class="f"><span>${label}</span><input name="${name}" placeholder="${ph}"></label>`;
     return `<section class="page" id="p-add">
-      <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button></div>
+      <div class="page-top"><button class="btn back" data-go="contents">${icon.left} All recipes</button></div>
       <h2 class="add-title">Add a recipe</h2>
       <p class="sub">Paste a recipe the way you'd send it in a message, tap <b>Fill in the form</b>, check it, then save.</p>
       <textarea id="paste" class="paste" rows="6" placeholder="Paste the whole recipe here…"></textarea>
@@ -607,7 +621,7 @@
       const r = bySlug[share.dataset.share];
       const url = `${location.origin}/recipes/${r.slug}/`;
       if (navigator.share) navigator.share({ title: r.title, url }).catch(() => {});
-      else copyText(url).then(() => flash(share, true, "Share"), () => flash(share, false, "Share"));
+      else copyText(url).then(() => flash(share.querySelector("span"), true, "Share"), () => flash(share.querySelector("span"), false, "Share"));
     }
     const c = t.closest("[data-cuisine]");
     if (c) {

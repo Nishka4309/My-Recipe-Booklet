@@ -17,7 +17,7 @@ const STATIC = [
 const ctx = vm.createContext({ window: {} });
 for (const f of ["recipes.js", "render.js"]) vm.runInContext(fs.readFileSync(f, "utf8"), ctx);
 const recipes = ctx.window.RECIPES;
-const { esc, withSlugs, facts, ingredientList, stepTexts, bodyHtml } = vm.runInContext("RecipeKit", ctx);
+const { icon, esc, withSlugs, facts, ingredientList, stepTexts, bodyHtml } = vm.runInContext("RecipeKit", ctx);
 
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT);
@@ -86,12 +86,12 @@ function page(r) {
   </header>
   <main id="main" class="book">
     <article class="page active">
-      <div class="page-top"><a class="btn back" href="/#contents">← All recipes</a></div>
+      <div class="page-top"><a class="btn back" href="/#contents">${icon.left} All recipes</a></div>
       <div class="recipe-head">
         <p class="kicker">Recipe ${String(r.n).padStart(2, "0")}${r.cuisine ? ` · ${esc(r.cuisine)}` : ""}</p>
         <h1><span class="e" aria-hidden="true">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h1>
         ${facts(r)}
-        <div class="head-pick"><a class="btn primary" href="/?pick=${r.slug}#${r.slug}">＋ Add to shopping list</a></div>
+        <div class="head-pick"><a class="btn primary" href="/?pick=${r.slug}#${r.slug}">${icon.plus} Add to shopping list</a></div>
       </div>
       ${bodyHtml(r)}
     </article>
