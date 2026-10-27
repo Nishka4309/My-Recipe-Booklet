@@ -53,7 +53,7 @@
       <div class="hero">
         <p class="eyebrow">High-protein · vegetarian · weeknight-fast</p>
         <h1 id="hero-title">Eat well.<br>Hit your protein.</h1>
-        <p class="lede">${recipes.length} simple recipes built around tofu, paneer, beans and Greek yogurt — each with a protein estimate, up to ~${top}g a plate.</p>
+        <p class="lede">Simple recipes built around tofu, paneer, beans and Greek yogurt — each with a protein estimate, up to ~${top}g a plate.</p>
         <div class="hero-cta">
           <button class="btn primary big" data-go="contents">Browse recipes →</button>
           <button class="btn big" data-go="list">Build a shopping list</button>
