@@ -410,6 +410,13 @@ html { overflow-x: clip; }
 .gform .btn:disabled { opacity: .5; cursor: progress; }
 .gstatus { margin: 0; font: 500 14px var(--sans); color: var(--muted); min-height: 1.4em; }
 .gstatus.error { color: var(--danger); }
+.recent-gen { margin-top: 48px; padding-top: 24px; border-top: 3px solid var(--ink); max-width: 760px; }
+.recent-title { font: 800 24px/1 var(--display); font-stretch: 68%; text-transform: uppercase; margin: 0 0 6px; }
+.recent-list { list-style: none; margin: 0; padding: 0; }
+.recent-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 12px 0; border-bottom: 1px solid var(--hair); }
+.recent-list a { font-weight: 700; text-decoration: none; }
+.recent-list a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; }
+.recent-actions { display: flex; align-items: center; gap: 14px; }
 .ai-note { margin: 16px 0 0; font-size: 14px; color: var(--muted); max-width: 40em; }
 .tag {
   font: 600 12px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; vertical-align: middle;

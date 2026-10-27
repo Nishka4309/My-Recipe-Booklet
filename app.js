@@ -29,8 +29,14 @@
 
   // Recipes a visitor generates live only in their browser.
   const GENERATED = "recipe-booklet-generated";
-  let generated = loadList(GENERATED).filter(isRecipe);
-  const GEN_KEEP = 12;
+  // A generated recipe joins the visitor's Recipes list only once they tap "Add to my recipes"
+  // (saved: true). Unsaved ones stay reachable from "Recently generated" on the generator page.
+  let generated = loadList(GENERATED).filter(isRecipe).map((r) => ({ ...r, saved: r.saved !== false }));
+  const GEN_KEEP = 12; // unsaved recipes kept; saved ones are never trimmed
+  const keepGenerated = (list) => {
+    let unsaved = 0;
+    return list.filter((r) => r.saved || ++unsaved <= GEN_KEEP);
+  };
 
   const PICKED = "recipe-booklet-picked";
   let picked = new Set(loadList(PICKED).filter((s) => typeof s === "string"));
@@ -249,7 +255,7 @@
 
   function renderToc() {
     const q = filter.q.toLowerCase();
-    const list = recipes.filter((r) =>
+    const list = recipes.filter((r) => !(r.generated && !r.saved) &&
       (!filter.cuisine || r.cuisine === filter.cuisine) &&
       (!q || [r.title, r.cuisine, ...(r.ingredients || [])].join(" ").toLowerCase().includes(q)));
     book.querySelector(".toc").innerHTML = list.length
@@ -263,9 +269,9 @@
   }
 
   function recipePage(r) {
-    const own = r.generated ? `<span class="own">Made by the generator
+    const own = r.generated ? `<span class="own">${r.saved ? "In your recipes" : "Not saved yet"}
         ${owner ? `<button class="link" data-keep="${esc(r.id)}">Save to booklet</button>` : ""}
-        <button class="link danger" data-delete-gen="${esc(r.id)}">Delete</button></span>`
+        <button class="link danger" data-delete-gen="${esc(r.id)}">${r.saved ? "Remove" : "Discard"}</button></span>`
       : owner && r.custom ? `<span class="own">Added in this browser
         <button class="link" data-edit="${esc(r.id)}">Edit</button>
         <button class="link danger" data-delete="${esc(r.id)}">Delete</button></span>` : "";
@@ -275,7 +281,7 @@
         <p class="kicker">Recipe ${String(r.n).padStart(2, "0")}${r.cuisine ? ` · ${esc(r.cuisine)}` : ""}</p>
         <h2><span class="e" aria-hidden="true">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h2>
         ${facts(r)}
-        <div class="head-pick">${pickBtn(r)}${r.custom || r.generated ? "" : `<button class="btn" data-share="${r.slug}">${icon.share}<span>Share</span></button>`}</div>
+        <div class="head-pick">${r.generated && !r.saved ? `<button class="btn primary" data-save-gen="${esc(r.id)}">${icon.plus} Add to my recipes</button>` : ""}${pickBtn(r)}${r.custom || r.generated ? "" : `<button class="btn" data-share="${r.slug}">${icon.share}<span>Share</span></button>`}</div>
         ${r.generated ? `<p class="ai-note">Written by AI from your request. Check ingredients for allergies, and treat the nutrition numbers as rough estimates.</p>` : ""}
       </div>
       ${bodyHtml(r)}
@@ -408,7 +414,19 @@
         <div class="form-actions"><button type="submit" class="btn primary big">Generate recipe</button></div>
         <p class="gstatus" role="status" aria-live="polite"></p>
       </form>
+      ${recentGenerated()}
     </section>`;
+  }
+  function recentGenerated() {
+    const recent = recipes.filter((r) => r.generated && !r.saved);
+    if (!recent.length) return "";
+    return `<div class="recent-gen"><h3 class="recent-title">Recently generated</h3>
+      <p class="sub">Not in your recipes yet. Add the ones you'd cook again.</p>
+      <ul class="recent-list">${recent.map((r) => `<li>
+        <a href="#${r.slug}"><span aria-hidden="true">${esc(r.emoji || "🍽️")}</span> ${esc(r.title)}</a>
+        <span class="recent-actions"><button class="btn" data-save-gen="${esc(r.id)}">${icon.plus} Add to my recipes</button>
+        <button class="link danger" data-delete-gen="${esc(r.id)}">Discard</button></span>
+      </li>`).join("")}</ul></div>`;
   }
 
   async function generate(form) {
@@ -430,9 +448,9 @@
           ? "You've made a few recipes in a row. Try again in a minute."
           : json.error || "Something went wrong. Please try again.");
       }
-      const r = { ...json.recipe, method: tidySteps(json.recipe.method), id: "g" + Date.now() };
+      const r = { ...json.recipe, method: tidySteps(json.recipe.method), id: "g" + Date.now(), saved: false };
       if (!r.tip) delete r.tip;
-      generated = [r, ...generated].slice(0, GEN_KEEP);
+      generated = keepGenerated([r, ...generated]);
       store(GENERATED, generated);
       form.reset();
       status.textContent = "";
@@ -723,12 +741,22 @@
       more.inert = !open;
       if (open) more.querySelectorAll(".track i, .ticks li, .sum span").forEach((el) => { el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; });
     }
+    const saveGen = t.closest("[data-save-gen]");
+    if (saveGen) {
+      const r = generated.find((x) => x.id === saveGen.dataset.saveGen);
+      if (r) {
+        r.saved = true; store(GENERATED, generated);
+        const stay = current();
+        build(); go(stay === "generate" ? "generate" : recipes.find((x) => x.id === r.id).slug);
+      }
+    }
     const delGen = t.closest("[data-delete-gen]");
     if (delGen) {
       const r = generated.find((x) => x.id === delGen.dataset.deleteGen);
-      if (r && confirm(`Delete "${r.title}"?`)) {
+      if (r && confirm(r.saved ? `Remove "${r.title}" from your recipes?` : `Discard "${r.title}"?`)) {
+        const from = current();
         generated = generated.filter((x) => x !== r); store(GENERATED, generated);
-        build(); go("contents");
+        build(); go(from === "generate" ? "generate" : r.saved ? "contents" : "generate");
       }
     }
     const keep = t.closest("[data-keep]");
