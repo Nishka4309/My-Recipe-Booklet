@@ -51,6 +51,53 @@
       caption: "UK adults are advised to eat 30 g of fibre a day, but most eat about 20 g." },
   ];
 
+  // "Good to know" facts. Numbers count up, bars grow and ticks check off when the section
+  // scrolls into view (see .facts-board.in in style.css). Bar widths are percentages.
+  const FACTS = [
+    { group: "Eat well", tone: "eat", items: [
+      { to: 0.8, dec: 1, suf: " g", unit: "protein per kg of body weight, per day", body: "The standard adult guide.",
+        sum: ["65 kg", "×", "0.8", "=", "52 g a day"] },
+      { to: 30, suf: " g", unit: "of fibre a day is the UK target", body: "Beans and chickpeas close the gap.",
+        bars: [["Target", 100, "30 g"], ["Typical adult", 67, "20 g"]] },
+      { to: 16, pre: "~", suf: " g", unit: "protein in 100 g of firm tofu", body: "Paneer is close behind.",
+        bars: [["Paneer", 100, "18 g"], ["Firm tofu", 89, "16 g"]] },
+    ] },
+    { group: "Spend less", tone: "spend", items: [
+      { to: 50, suf: "%", unit: "cheaper per portion: dried vs tinned beans", body: "Often about half the price. Cook a batch and freeze it.",
+        bars: [["Tinned", 100, "100%"], ["Dried", 50, "~50%"]] },
+      { label: "Months", unit: "frozen veg keeps its nutrients", body: "Fresh spinach lasts about a week; frozen lasts months.",
+        bars: [["Fresh", 10, "~1 week"], ["Frozen", 100, "months"]] },
+      { label: "1 list", unit: "for the whole week", body: "Fewer extra trips and fewer impulse buys.",
+        ticks: ["Tofu", "Spinach", "Chickpeas"] },
+    ] },
+  ];
+  const fmt = (f, v) => `${f.pre || ""}${v.toFixed(f.dec || 0)}${f.suf || ""}`;
+  const TICK = `<svg viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="16" height="16"/><path d="M4.5 9.5l3 3 6-7"/></svg>`;
+  function factCard(f) {
+    const figure = f.label ? esc(f.label)
+      : `<span class="sr">${esc(fmt(f, f.to))}</span><span class="num" aria-hidden="true" data-to="${f.to}">${esc(fmt(f, f.to))}</span>`;
+    const bars = f.bars ? `<div class="bars">${f.bars.map(([k, w, v]) => `<div class="meter-row">
+        <span class="meter-label"><span>${esc(k)}</span><b>${esc(v)}</b></span>
+        <span class="track" aria-hidden="true"><i data-w="${w}"></i></span></div>`).join("")}</div>` : "";
+    const sum = f.sum ? `<p class="sum">${f.sum.map((t) => `<span>${esc(t)}</span>`).join(" ")}</p>` : "";
+    const ticks = f.ticks ? `<ul class="ticks">${f.ticks.map((t) => `<li>${TICK}${esc(t)}</li>`).join("")}</ul>` : "";
+    return `<article class="fact-card"><b class="fig">${figure}</b><span class="unit">${esc(f.unit)}</span>${sum}${bars}${ticks}<span class="body">${esc(f.body)}</span></article>`;
+  }
+  const factGroup = (g) => `<div class="fact-group ${g.tone}"><h3 class="facts-group">${esc(g.group)}</h3>
+    <div class="fact-grid">${g.items.map(factCard).join("")}</div></div>`;
+
+  // Count a figure up from zero (ease-out cubic, ~0.9 s).
+  function countUp(el) {
+    const f = FACTS.flatMap((g) => g.items).find((x) => String(x.to) === el.dataset.to);
+    const start = performance.now(), dur = 900;
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(f, f.to * e);
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
   const proteinNums = (r) => (String(r.protein || "").match(/\d+/g) || []).map(Number);
 
   const card = (r) => `<a class="card" href="#${r.slug}">
@@ -102,23 +149,12 @@
 
       <section class="band" aria-labelledby="facts-title">
         <div class="section-head"><h2 id="facts-title">Good to know</h2></div>
+        <div class="facts-board">${FACTS.map(factGroup).join("")}</div>
         <div class="chart-grid">
           ${CHARTS.map((c) => `<figure class="chart">
             <iframe src="https://public.flourish.studio/visualisation/${c.id}/embed" title="${esc(c.title)}" loading="lazy" scrolling="no"></iframe>
             <figcaption>${esc(c.caption)}</figcaption>
           </figure>`).join("")}
-        </div>
-        <h3 class="facts-group">Eat well</h3>
-        <div class="fact-grid">
-          <div class="fact-card"><b>0.8 g</b><span>protein per kg of body weight a day is the standard adult guide. A 65 kg adult needs about 52 g.</span></div>
-          <div class="fact-card"><b>30 g</b><span>of fibre a day is the UK target. Most adults eat closer to 20 g. Beans and chickpeas close the gap.</span></div>
-          <div class="fact-card"><b>~16 g</b><span>protein in 100 g of firm tofu. Paneer has about 18 g.</span></div>
-        </div>
-        <h3 class="facts-group">Spend less</h3>
-        <div class="fact-grid">
-          <div class="fact-card"><b>50%</b><span>Dried beans and chickpeas often cost about half as much per portion as tinned. Cook a batch and freeze it.</span></div>
-          <div class="fact-card"><b>Months</b><span>Frozen spinach and veg keep their nutrients and last that long, so less ends up in the bin.</span></div>
-          <div class="fact-card"><b>1 list</b><span>Shopping for the whole week from one list means fewer extra trips and fewer impulse buys.</span></div>
         </div>
         <p class="fine sources">Sources: NHS (fibre), US Dietary Reference Intakes (protein), USDA FoodData Central and Indian Food Composition Tables (protein in foods). Figures are general guides, not personal advice.</p>
       </section>
@@ -534,14 +570,18 @@
     revealObserver?.disconnect();
     book.innerHTML = coverPage() + contentsPage() + recipes.map(recipePage).join("") + listPage() + generatePage() + aboutPage() + (owner ? addPage() : "");
     renderToc();
-    book.querySelectorAll(".cards, .steps").forEach((el) => revealObserver?.observe(el));
+    book.querySelectorAll(".track i").forEach((i) => i.style.setProperty("--w", i.dataset.w / 100));
+    book.querySelectorAll(".cards, .steps, .facts-board").forEach((el) => revealObserver?.observe(el));
   }
 
   // Motion (designed in Figma): sections below the fold animate in once they scroll into view.
   const motionOK = window.matchMedia && !window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window;
   if (motionOK) document.documentElement.classList.add("motion");
   const revealObserver = motionOK ? new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); revealObserver.unobserve(e.target); }
+    for (const e of entries) if (e.isIntersecting) {
+      e.target.classList.add("in"); revealObserver.unobserve(e.target);
+      e.target.querySelectorAll(".num").forEach(countUp);
+    }
   }, { threshold: 0.2 }) : null;
   let lastPickCount = null;
 
