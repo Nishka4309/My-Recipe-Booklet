@@ -12,7 +12,7 @@
   --yellow: #e8b931;    /* turmeric: spend-less fills only, never text on cream-mint */
   --danger: #b3261e;
   --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --sans: "Archivo", system-ui, -apple-system, sans-serif;
+  --sans: Arial, "Helvetica Neue", Helvetica, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --max: 1080px;
 }
@@ -233,6 +233,9 @@ html { overflow-x: clip; }
 .food-charts { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; margin: 8px 0 12px; }
 .food-chart { margin: 0; }
 .food-chart h4 { margin: 0; font: 800 22px/1.1 var(--display); font-stretch: 68%; text-transform: uppercase; }
+.food-chart h4 a { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.food-chart h4 a:hover { text-decoration-color: var(--brown); }
+.food-chart h4 .icon { width: 18px; height: 18px; margin-left: 6px; vertical-align: -2px; rotate: -45deg; }
 .food-chart figcaption p { margin: 4px 0 18px; color: var(--muted); font-size: 15px; }
 .food-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .food-rows li { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; }

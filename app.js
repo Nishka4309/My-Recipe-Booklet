@@ -46,22 +46,22 @@
   // "The numbers behind it": bar charts whose bars are the foods themselves, drawn in CSS.
   const FOOD_CHARTS = [
     { title: "Protein per 100 g", note: "Common vegetarian protein foods, approximate values",
-      source: "USDA FoodData Central; Indian Food Composition Tables (paneer)",
+      source: "USDA FoodData Central; Indian Food Composition Tables (paneer)", url: "https://fdc.nal.usda.gov/",
       rows: [["Paneer", 18, "paneer"], ["Firm tofu", 16, "tofu"], ["Edamame, cooked", 12, "edamame"], ["Greek yogurt, plain", 10, "yogurt"],
         ["Lentils, cooked", 9, "lentils"], ["Chickpeas, cooked", 9, "chickpeas"], ["Kidney beans, cooked", 9, "kidney"]] },
     { title: "Fibre: the 10 g gap", note: "Grams of fibre a day for UK adults",
-      source: "NHS",
+      source: "NHS", url: "https://www.nhs.uk/live-well/eat-well/digestive-health/how-to-get-more-fibre-into-your-diet/",
       rows: [["UK daily target", 30, "beans"], ["What most adults eat", 20, "beans"]] },
   ];
   function foodChart(c) {
     const max = Math.max(...c.rows.map((r) => r[1]));
     return `<figure class="food-chart">
-      <figcaption><h4>${esc(c.title)}</h4><p>${esc(c.note)}</p></figcaption>
+      <figcaption><h4><a href="${c.url}" target="_blank" rel="noopener">${esc(c.title)}${icon.right}<span class="sr"> (opens the source in a new tab)</span></a></h4><p>${esc(c.note)}</p></figcaption>
       <ol class="food-rows">${c.rows.map(([name, g, kind]) => `<li>
         <span class="food-name">${esc(name)}</span>
         <span class="food-track"><i class="food-bar ${kind}" data-f="${(g / max).toFixed(3)}" aria-hidden="true"></i><b>${g} g</b></span>
       </li>`).join("")}</ol>
-      <p class="fine">Source: ${esc(c.source)}</p>
+      <p class="fine">Source: <a href="${c.url}" target="_blank" rel="noopener">${esc(c.source)}</a></p>
     </figure>`;
   }
 
