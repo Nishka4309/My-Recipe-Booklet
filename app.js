@@ -62,7 +62,7 @@
         <div class="hero-text">
           <p class="kicker">Vegetarian · high protein</p>
           <h1 id="hero-title">Weeknight dinners with real protein.</h1>
-          <p class="lede">Tofu, paneer, beans and Greek yogurt, cooked in about 20 minutes. Every recipe shows its protein, and your shopping list adds itself up.</p>
+          <p class="lede">High-protein vegetarian dinners in about 20 minutes. Pick a few, get one shopping list.</p>
           <div class="hero-cta">
             <button class="btn primary big" data-go="contents">Browse recipes</button>
             <button class="btn big" data-go="generate">Generate a recipe</button>
@@ -76,14 +76,46 @@
           <div class="label-row"><span>Meat</span><b>0 g</b></div>
         </aside>
       </div>
-      <div class="section-head"><h2>Latest additions</h2><button class="link" data-go="contents">All recipes →</button></div>
-      <div class="cards">${latest.map(card).join("")}</div>
-      <div class="section-head"><h2>How it works</h2></div>
-      <ol class="how">
-        <li><b>Pick recipes</b><span>Tap ＋ on anything you want to cook this week.</span></li>
-        <li><b>Get one list</b><span>Ingredients from every recipe merge into one list. Copy it or print it.</span></li>
-        <li><b>Cook</b><span>Steps are short and numbered. Most dishes take 15 to 20 minutes.</span></li>
-      </ol>
+
+      <section class="band" aria-labelledby="latest-title">
+        <div class="section-head"><h2 id="latest-title">Latest additions</h2><button class="link" data-go="contents">All recipes →</button></div>
+        <div class="cards">${latest.map(card).join("")}</div>
+      </section>
+
+      <section class="band" aria-labelledby="how-title">
+        <div class="section-head"><h2 id="how-title">How it works</h2></div>
+        <ol class="steps">
+          <li><b>Find a recipe</b><span>Browse the booklet, or generate one from what's in your fridge.</span></li>
+          <li><b>Tap ＋</b><span>Add every recipe you want this week.</span></li>
+          <li><b>Shop once</b><span>Ingredients merge into one list. Copy or print it.</span></li>
+          <li><b>Cook</b><span>Short, numbered steps. About 20 minutes.</span></li>
+        </ol>
+      </section>
+
+      <section class="band" aria-labelledby="facts-title">
+        <div class="section-head"><h2 id="facts-title">Good to know</h2></div>
+        <h3 class="facts-group">Eat well</h3>
+        <div class="fact-grid">
+          <div class="fact-card"><b>0.8 g</b><span>protein per kg of body weight a day is the standard adult guide. A 65 kg adult needs about 52 g.</span></div>
+          <div class="fact-card"><b>30 g</b><span>of fibre a day is the UK target. Most adults eat closer to 20 g. Beans and chickpeas close the gap.</span></div>
+          <div class="fact-card"><b>~15 g</b><span>protein in 100 g of firm tofu. Paneer has about 18 g.</span></div>
+        </div>
+        <h3 class="facts-group">Spend less</h3>
+        <div class="fact-grid">
+          <div class="fact-card"><b>50%</b><span>Dried beans and chickpeas often cost about half as much per portion as tinned. Cook a batch and freeze it.</span></div>
+          <div class="fact-card"><b>Months</b><span>Frozen spinach and veg keep their nutrients and last that long, so less ends up in the bin.</span></div>
+          <div class="fact-card"><b>1 list</b><span>Shopping for the whole week from one list means fewer extra trips and fewer impulse buys.</span></div>
+        </div>
+        <p class="fine sources">Sources: NHS (fibre), US Dietary Reference Intakes (protein), USDA FoodData Central (tofu, paneer). Figures are general guides, not personal advice.</p>
+      </section>
+
+      <section class="cta-band">
+        <h2>Hungry?</h2>
+        <div class="hero-cta">
+          <button class="btn big invert" data-go="contents">Browse recipes</button>
+          <button class="btn big accent" data-go="generate">Generate one</button>
+        </div>
+      </section>
     </section>`;
   }
 
