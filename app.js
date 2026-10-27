@@ -27,6 +27,11 @@
   let added = loadList(ADDED).filter(isRecipe).filter((r) => !inFile.has(r.title.trim().toLowerCase()));
   store(ADDED, added);
 
+  // Recipes a visitor generates live only in their browser.
+  const GENERATED = "recipe-booklet-generated";
+  let generated = loadList(GENERATED).filter(isRecipe);
+  const GEN_KEEP = 12;
+
   const PICKED = "recipe-booklet-picked";
   let picked = new Set(loadList(PICKED).filter((s) => typeof s === "string"));
   const savePicked = () => store(PICKED, [...picked]);
@@ -48,9 +53,10 @@
     </a>`;
 
   function coverPage() {
-    const nums = recipes.flatMap(proteinNums);
+    const own = recipes.filter((r) => !r.generated);
+    const nums = own.flatMap(proteinNums);
     const range = nums.length ? `${Math.min(...nums)}–${Math.max(...nums)} g` : "–";
-    const latest = recipes.slice(-3).reverse();
+    const latest = own.slice(-3).reverse();
     return `<section class="page cover" id="p-cover" aria-labelledby="hero-title">
       <div class="hero">
         <div class="hero-text">
@@ -59,7 +65,7 @@
           <p class="lede">Tofu, paneer, beans and Greek yogurt, cooked in about 20 minutes. Every recipe shows its protein, and your shopping list adds itself up.</p>
           <div class="hero-cta">
             <button class="btn primary big" data-go="contents">Browse recipes</button>
-            <button class="btn big" data-go="list">Shopping list</button>
+            <button class="btn big" data-go="generate">Generate a recipe</button>
           </div>
         </div>
         <aside class="label" aria-label="At a glance">
@@ -123,7 +129,7 @@
     book.querySelector(".toc").innerHTML = list.length
       ? list.map((r) => `<li><a href="#${r.slug}">
           <span class="toc-emoji">${esc(r.emoji || "🍽️")}</span>
-          <span><span class="toc-title">${esc(r.title)}</span>
+          <span><span class="toc-title">${esc(r.title)}${r.generated ? ` <span class="tag">Yours</span>` : ""}</span>
             <span class="toc-meta">${metaLine(r)}</span></span>
           <span class="toc-protein">${proteinShort(r)}</span></a>${pickBtn(r, true)}</li>`).join("")
       : `<li class="empty">No recipes match.</li>`;
@@ -131,7 +137,10 @@
   }
 
   function recipePage(r) {
-    const own = owner && r.custom ? `<span class="own">Added in this browser
+    const own = r.generated ? `<span class="own">Made by the generator
+        ${owner ? `<button class="link" data-keep="${esc(r.id)}">Save to booklet</button>` : ""}
+        <button class="link danger" data-delete-gen="${esc(r.id)}">Delete</button></span>`
+      : owner && r.custom ? `<span class="own">Added in this browser
         <button class="link" data-edit="${esc(r.id)}">Edit</button>
         <button class="link danger" data-delete="${esc(r.id)}">Delete</button></span>` : "";
     return `<section class="page" id="p-${r.slug}">
@@ -140,7 +149,8 @@
         <p class="kicker">Recipe ${String(r.n).padStart(2, "0")}${r.cuisine ? ` · ${esc(r.cuisine)}` : ""}</p>
         <h2><span class="e" aria-hidden="true">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h2>
         ${facts(r)}
-        <div class="head-pick">${pickBtn(r)}${r.custom ? "" : `<button class="btn" data-share="${r.slug}">Share</button>`}</div>
+        <div class="head-pick">${pickBtn(r)}${r.custom || r.generated ? "" : `<button class="btn" data-share="${r.slug}">Share</button>`}</div>
+        ${r.generated ? `<p class="ai-note">Written by AI from your request. Check ingredients for allergies, and treat the nutrition numbers as rough estimates.</p>` : ""}
       </div>
       ${bodyHtml(r)}
     </section>`;
@@ -248,6 +258,67 @@
     btn.textContent = ok ? "Copied ✓" : "Couldn't copy";
     setTimeout(() => (btn.textContent = label), 1500);
   };
+
+  // ── generating recipes ──
+  function generatePage() {
+    const opts = (name, label, values, any) => `<label class="f"><span>${label}</span><select name="${name}">
+        <option value="">${any}</option>${values.map((v) => `<option>${v}</option>`).join("")}</select></label>`;
+    return `<section class="page" id="p-generate">
+      <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button></div>
+      <p class="kicker">Recipe generator</p>
+      <h2 class="page-title">Make a recipe from what you have.</h2>
+      <p class="sub">Say what's in your fridge or what you feel like eating. You'll get a vegetarian recipe with at least 20 g of protein, written by AI.</p>
+      <form id="gform" class="gform">
+        <label class="f"><span>What do you have, or what do you want?</span>
+          <textarea name="request" rows="3" maxlength="500" required placeholder="Paneer, spinach and some rice. Something spicy."></textarea></label>
+        <div class="grid">
+          ${opts("time", "Time", ["15 min", "20 min", "30 min", "45 min"], "Any")}
+          ${opts("cuisine", "Cuisine", ["Indian", "Mexican", "Thai", "Korean", "Chinese", "Japanese", "Italian", "Middle Eastern"], "Surprise me")}
+          ${opts("servings", "Servings", ["1", "2", "4"], "Not fussed")}
+        </div>
+        <label class="f"><span>Leave out (optional)</span><input name="avoid" maxlength="200" placeholder="Nuts, mushrooms, dairy…"></label>
+        <div class="form-actions"><button type="submit" class="btn primary big">Generate recipe</button></div>
+        <p class="gstatus" role="status" aria-live="polite"></p>
+      </form>
+    </section>`;
+  }
+
+  async function generate(form) {
+    const btn = form.querySelector('[type="submit"]');
+    const status = form.querySelector(".gstatus");
+    const data = Object.fromEntries(new FormData(form));
+    btn.disabled = true;
+    status.className = "gstatus";
+    status.textContent = "Writing your recipe. This takes about 15 seconds…";
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.recipe) {
+        throw new Error(res.status === 429 && !json.error
+          ? "You've made a few recipes in a row. Try again in a minute."
+          : json.error || "Something went wrong. Please try again.");
+      }
+      const r = { ...json.recipe, method: tidySteps(json.recipe.method), id: "g" + Date.now() };
+      if (!r.tip) delete r.tip;
+      generated = [r, ...generated].slice(0, GEN_KEEP);
+      store(GENERATED, generated);
+      form.reset();
+      status.textContent = "";
+      build();
+      go(recipes.find((x) => x.id === r.id).slug);
+    } catch (err) {
+      status.className = "gstatus error";
+      status.textContent = location.protocol === "file:"
+        ? "The generator only works on the live website."
+        : err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
 
   // ── adding recipes ──
   function addPage() {
@@ -403,18 +474,22 @@
 
   // ── building & routing ──
   function build() {
-    recipes = withSlugs([...FILE, ...(owner ? added : []).map((r) => ({ ...r, custom: true }))]);
+    recipes = withSlugs([
+      ...FILE,
+      ...(owner ? added : []).map((r) => ({ ...r, custom: true })),
+      ...generated.map((r) => ({ ...r, generated: true })),
+    ]);
     bySlug = Object.fromEntries(recipes.map((r) => [r.slug, r]));
     cuisines = [...new Set(recipes.map((r) => r.cuisine).filter(Boolean))];
     picked = new Set([...picked].filter((s) => bySlug[s]));
     filter = { q: "", cuisine: "" };
-    book.innerHTML = coverPage() + contentsPage() + recipes.map(recipePage).join("") + listPage() + aboutPage() + (owner ? addPage() : "");
+    book.innerHTML = coverPage() + contentsPage() + recipes.map(recipePage).join("") + listPage() + generatePage() + aboutPage() + (owner ? addPage() : "");
     renderToc();
   }
 
   function current() {
     const id = location.hash.slice(1);
-    return bySlug[id] || ["contents", "list", "about"].includes(id) || (owner && id === "add") ? id : "cover";
+    return bySlug[id] || ["contents", "list", "about", "generate"].includes(id) || (owner && id === "add") ? id : "cover";
   }
   function show() {
     const id = current();
@@ -422,7 +497,7 @@
     document.body.classList.toggle("on-list", id === "list");
     book.querySelectorAll(".page").forEach((p) => p.classList.toggle("active", p.id === "p-" + id));
     const r = bySlug[id];
-    const name = r ? r.title : { contents: "All recipes", list: "Shopping list", about: "About", add: "Add a recipe" }[id];
+    const name = r ? r.title : { contents: "All recipes", list: "Shopping list", about: "About", add: "Add a recipe", generate: "Recipe generator" }[id];
     document.title = name ? `${name} · My Recipe Booklet` : "My Recipe Booklet · High-protein vegetarian recipes";
     window.scrollTo(0, 0);
     if (navigated) book.focus({ preventScroll: true });
@@ -460,6 +535,24 @@
         build(); go("contents");
       }
     }
+    const delGen = t.closest("[data-delete-gen]");
+    if (delGen) {
+      const r = generated.find((x) => x.id === delGen.dataset.deleteGen);
+      if (r && confirm(`Delete "${r.title}"?`)) {
+        generated = generated.filter((x) => x !== r); store(GENERATED, generated);
+        build(); go("contents");
+      }
+    }
+    const keep = t.closest("[data-keep]");
+    if (keep) {
+      const r = generated.find((x) => x.id === keep.dataset.keep);
+      if (r) {
+        generated = generated.filter((x) => x !== r); store(GENERATED, generated);
+        const saved = { ...r, id: "r" + Date.now() };
+        added.push(saved); store(ADDED, added);
+        build(); go(recipes.find((x) => x.id === saved.id).slug);
+      }
+    }
     if (t.closest("#parse")) {
       const r = parseRecipe(book.querySelector("#paste").value);
       if (!r.title) { book.querySelector("#parse-msg").textContent = "Paste a recipe first."; return; }
@@ -495,6 +588,7 @@
     if (e.target.matches(".search")) { filter.q = e.target.value; renderToc(); }
   });
   document.addEventListener("submit", (e) => {
+    if (e.target.matches("#gform")) { e.preventDefault(); generate(e.target); return; }
     if (!e.target.matches("#rform")) return;
     e.preventDefault();
     const r = readForm();

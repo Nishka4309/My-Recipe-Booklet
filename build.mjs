@@ -82,7 +82,7 @@ function page(r) {
   <a class="skip" href="#main">Skip to content</a>
   <header class="bar">
     <a class="bar-title" href="/" aria-label="My Recipe Booklet, home"><svg class="mark" viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><path d="M9 19 30 23v28L9 47z"/><path d="M34 23 55 19v28l-21 4z"/><path class="ribbon" d="M28 8h8v20l-4-4-4 4z"/></svg><span class="wordmark"><small>My</small>Recipe Booklet</span></a>
-    <nav class="bar-actions" aria-label="Main"><a class="btn" href="/#contents">All recipes</a></nav>
+    <nav class="bar-actions" aria-label="Main"><a class="btn" href="/#contents">Recipes</a><a class="btn" href="/#generate">Generate</a></nav>
   </header>
   <main id="main" class="book">
     <article class="page active">
