@@ -1,5 +1,5 @@
 (function () {
-  const { esc, withSlugs, stats, metaLine, bodyHtml } = window.RecipeKit;
+  const { esc, withSlugs, facts, proteinShort, metaLine, bodyHtml } = window.RecipeKit;
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
   const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -38,34 +38,45 @@
   const pickBtn = (r, small) =>
     `<button class="btn pick${small ? " pick-sm" : ""}" data-pick="${r.slug}" data-name="${esc(r.title)}" aria-pressed="false"></button>`;
 
-  const proteinMax = (r) => Math.max(0, ...(String(r.protein || "").match(/\d+/g) || []).map(Number));
+  const proteinNums = (r) => (String(r.protein || "").match(/\d+/g) || []).map(Number);
 
   const card = (r) => `<a class="card" href="#${r.slug}">
-      <span class="card-emoji">${esc(r.emoji || "🍽️")}</span>
+      <span class="card-top"><span class="card-protein">${proteinShort(r) || "–"}<small>protein</small></span>
+        <span class="card-emoji" aria-hidden="true">${esc(r.emoji || "🍽️")}</span></span>
       <span class="card-title">${esc(r.title)}</span>
       <span class="card-meta">${metaLine(r)}</span>
     </a>`;
 
   function coverPage() {
-    const top = Math.max(0, ...recipes.map(proteinMax));
+    const nums = recipes.flatMap(proteinNums);
+    const range = nums.length ? `${Math.min(...nums)}–${Math.max(...nums)} g` : "–";
     const latest = recipes.slice(-3).reverse();
     return `<section class="page cover" id="p-cover" aria-labelledby="hero-title">
       <div class="hero">
-        <p class="eyebrow">High-protein · vegetarian · weeknight-fast</p>
-        <h1 id="hero-title">Eat well.<br>Hit your protein.</h1>
-        <p class="lede">Simple recipes built around tofu, paneer, beans and Greek yogurt — each with a protein estimate, up to ~${top}g a plate.</p>
-        <div class="hero-cta">
-          <button class="btn primary big" data-go="contents">Browse recipes →</button>
-          <button class="btn big" data-go="list">Build a shopping list</button>
+        <div class="hero-text">
+          <p class="kicker">Vegetarian · high protein</p>
+          <h1 id="hero-title">Weeknight dinners with real protein.</h1>
+          <p class="lede">Tofu, paneer, beans and Greek yogurt, cooked in about 20 minutes. Every recipe shows its protein, and your shopping list adds itself up.</p>
+          <div class="hero-cta">
+            <button class="btn primary big" data-go="contents">Browse recipes</button>
+            <button class="btn big" data-go="list">Shopping list</button>
+          </div>
         </div>
+        <aside class="label" aria-label="At a glance">
+          <p class="label-title">At a glance</p>
+          <div class="label-row label-lead"><span>Protein per plate</span><b>${range}</b></div>
+          <div class="label-row"><span>Cooking time</span><b>~20 min</b></div>
+          <div class="label-row"><span>Built on</span><b>tofu · paneer · beans</b></div>
+          <div class="label-row"><span>Meat</span><b>0 g</b></div>
+        </aside>
       </div>
-      <h2 class="section-title">Newest recipes</h2>
+      <div class="section-head"><h2>Latest additions</h2><button class="link" data-go="contents">All recipes →</button></div>
       <div class="cards">${latest.map(card).join("")}</div>
-      <h2 class="section-title">How it works</h2>
+      <div class="section-head"><h2>How it works</h2></div>
       <ol class="how">
-        <li><b>Pick your meals</b><span>Tap ＋ on any recipes you want to cook this week.</span></li>
-        <li><b>Get one list</b><span>Ingredients are combined into a single shopping list you can copy or print.</span></li>
-        <li><b>Cook</b><span>Short, numbered steps — most dishes take 15–20 minutes.</span></li>
+        <li><b>Pick recipes</b><span>Tap ＋ on anything you want to cook this week.</span></li>
+        <li><b>Get one list</b><span>Ingredients from every recipe merge into one list. Copy it or print it.</span></li>
+        <li><b>Cook</b><span>Steps are short and numbered. Most dishes take 15 to 20 minutes.</span></li>
       </ol>
     </section>`;
   }
@@ -73,13 +84,14 @@
   function aboutPage() {
     return `<section class="page" id="p-about">
       <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button></div>
-      <h2>About this booklet</h2>
+      <p class="kicker">About</p>
+      <h2 class="page-title">A booklet of high-protein vegetarian dinners.</h2>
       <div class="prose">
-        <p>My Recipe Booklet is a growing collection of vegetarian meals that are quick to make and high in protein. Most recipes lean on tofu, paneer, beans, chickpeas and Greek yogurt, and borrow flavours from Indian, Mexican, Korean, Thai and Italian cooking.</p>
-        <p>Every recipe lists an approximate protein and fibre figure, so you can plan meals around your goals. Pick a few recipes and the booklet builds one combined shopping list for you.</p>
-        <p class="fine">Nutrition figures are estimates. They change with the brands, portions and swaps you use, so treat them as a guide rather than medical or dietary advice.</p>
+        <p>This booklet collects vegetarian dinners that are high in protein and quick to make. Most are built on tofu, paneer, beans, chickpeas or Greek yogurt, with flavours from Indian, Mexican, Korean, Thai and Italian cooking.</p>
+        <p>Each recipe shows roughly how much protein and fibre it has. Pick a few and the booklet turns their ingredients into one shopping list.</p>
+        <p class="fine">Nutrition numbers are estimates. Brands, portions and swaps change them, so use them as a guide, not as medical or dietary advice.</p>
       </div>
-      <button class="btn primary" data-go="contents">Browse the recipes →</button>
+      <button class="btn primary" data-go="contents">Browse recipes</button>
     </section>`;
   }
 
@@ -91,9 +103,9 @@
         To keep ${added.length === 1 ? "it" : "them"} for good, download <code>recipes.js</code> and replace the one in your recipes folder.</span>
         <button class="btn" data-export>Download recipes.js</button></div>` : "";
     return `<section class="page" id="p-contents">
-      <div class="title-row"><h2>Recipes</h2>
+      <div class="title-row"><h2 class="page-title">Recipes</h2>
         ${owner ? `<button class="btn primary" data-new>＋ Add a recipe</button>` : ""}</div>
-      <p class="sub">Tap a recipe to open it, or <b>＋</b> to add it to your shopping list.</p>
+      <p class="sub">Open a recipe, or tap ＋ to put it on your shopping list.</p>
       ${unsaved}
       <div class="controls">
         <input class="search" type="search" placeholder="Search recipes or ingredients…" aria-label="Search">
@@ -113,7 +125,7 @@
           <span class="toc-emoji">${esc(r.emoji || "🍽️")}</span>
           <span><span class="toc-title">${esc(r.title)}</span>
             <span class="toc-meta">${metaLine(r)}</span></span>
-          <span class="toc-num">${r.n}</span></a>${pickBtn(r, true)}</li>`).join("")
+          <span class="toc-protein">${proteinShort(r)}</span></a>${pickBtn(r, true)}</li>`).join("")
       : `<li class="empty">No recipes match.</li>`;
     syncPicks();
   }
@@ -125,13 +137,12 @@
     return `<section class="page" id="p-${r.slug}">
       <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button>${own}</div>
       <div class="recipe-head">
-        <div class="recipe-no">Recipe ${r.n}</div>
-        <h2><span class="e">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h2>
-        <div class="stats">${stats(r)}</div>
+        <p class="kicker">Recipe ${String(r.n).padStart(2, "0")}${r.cuisine ? ` · ${esc(r.cuisine)}` : ""}</p>
+        <h2><span class="e" aria-hidden="true">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h2>
+        ${facts(r)}
         <div class="head-pick">${pickBtn(r)}${r.custom ? "" : `<button class="btn" data-share="${r.slug}">Share</button>`}</div>
       </div>
       ${bodyHtml(r)}
-      <div class="folio">— ${r.n} —</div>
     </section>`;
   }
 
@@ -162,8 +173,8 @@
   function listPage() {
     return `<section class="page" id="p-list">
       <div class="page-top"><button class="btn back" data-go="contents">← All recipes</button></div>
-      <h2>🛒 Shopping list</h2>
-      <p class="sub">Everything you need for the recipes you picked, combined.</p>
+      <p class="kicker">Shopping list</p>
+      <h2 class="page-title">Everything to buy, in one list.</h2>
       <div class="list-body"></div>
     </section>`;
   }
@@ -172,8 +183,8 @@
     const body = book.querySelector("#p-list .list-body");
     const chosen = recipes.filter((r) => picked.has(r.slug));
     if (!chosen.length) {
-      body.innerHTML = `<div class="empty-list"><p>No recipes picked yet.</p>
-        <button class="btn primary" data-go="contents">Choose recipes →</button></div>`;
+      body.innerHTML = `<div class="empty-list"><p>Nothing here yet. Tap ＋ on a recipe to add its ingredients.</p>
+        <button class="btn primary" data-go="contents">Choose recipes</button></div>`;
       return;
     }
     const items = shoppingList();
@@ -217,7 +228,8 @@
       if (b.classList.contains("pick-sm")) b.setAttribute("aria-label", `${b.title}: ${b.dataset.name}`);
     });
     const cart = document.getElementById("cart");
-    cart.textContent = `🛒 List${picked.size ? ` (${picked.size})` : ""}`;
+    cart.innerHTML = `List${picked.size ? ` <span class="count-pill">${picked.size}</span>` : ""}`;
+    cart.setAttribute("aria-label", `Shopping list, ${picked.size} recipe${picked.size === 1 ? "" : "s"}`);
     cart.classList.toggle("has", picked.size > 0);
   }
 

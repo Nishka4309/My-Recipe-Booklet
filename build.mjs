@@ -17,7 +17,7 @@ const STATIC = [
 const ctx = vm.createContext({ window: {} });
 for (const f of ["recipes.js", "render.js"]) vm.runInContext(fs.readFileSync(f, "utf8"), ctx);
 const recipes = ctx.window.RECIPES;
-const { esc, withSlugs, stats, ingredientList, stepTexts, bodyHtml } = vm.runInContext("RecipeKit", ctx);
+const { esc, withSlugs, facts, ingredientList, stepTexts, bodyHtml } = vm.runInContext("RecipeKit", ctx);
 
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT);
@@ -58,7 +58,7 @@ function page(r) {
   <title>${esc(r.title)} · My Recipe Booklet</title>
   <meta name="description" content="${esc(desc)}">
   <link rel="canonical" href="${url}">
-  <meta name="theme-color" content="#c2502e">
+  <meta name="theme-color" content="#141414">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -74,23 +74,23 @@ function page(r) {
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/style.css">
   <script type="application/ld+json">${ld(data)}</script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="bar">
-    <a class="bar-title" href="/" aria-label="My Recipe Booklet, home"><img src="/favicon.svg" alt="" width="26" height="26"> Recipe Booklet</a>
+    <a class="bar-title" href="/" aria-label="My Recipe Booklet, home"><svg class="mark" viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><path d="M9 19 30 23v28L9 47z"/><path d="M34 23 55 19v28l-21 4z"/><path class="ribbon" d="M28 8h8v20l-4-4-4 4z"/></svg><span class="wordmark"><small>My</small>Recipe Booklet</span></a>
     <nav class="bar-actions" aria-label="Main"><a class="btn" href="/#contents">All recipes</a></nav>
   </header>
   <main id="main" class="book">
     <article class="page active">
       <div class="page-top"><a class="btn back" href="/#contents">← All recipes</a></div>
       <div class="recipe-head">
-        <div class="recipe-no">Recipe ${r.n}</div>
-        <h1><span class="e">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h1>
-        <div class="stats">${stats(r)}</div>
+        <p class="kicker">Recipe ${String(r.n).padStart(2, "0")}${r.cuisine ? ` · ${esc(r.cuisine)}` : ""}</p>
+        <h1><span class="e" aria-hidden="true">${esc(r.emoji || "🍽️")}</span>${esc(r.title)}</h1>
+        ${facts(r)}
         <div class="head-pick"><a class="btn primary" href="/?pick=${r.slug}#${r.slug}">＋ Add to shopping list</a></div>
       </div>
       ${bodyHtml(r)}

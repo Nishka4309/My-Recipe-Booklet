@@ -21,15 +21,20 @@
     });
   }
 
-  const stats = (r) => [
-    r.cuisine && `<span class="stat">${esc(r.cuisine)}</span>`,
-    r.protein && `<span class="stat"><b>Protein</b> ${esc(r.protein)}</span>`,
-    r.fibre && `<span class="stat"><b>Fibre</b> ${esc(r.fibre)}</span>`,
-    r.time && `<span class="stat"><b>Time</b> ${esc(r.time)}</span>`,
-    r.makes && `<span class="stat"><b>Makes</b> ${esc(r.makes)}</span>`,
-  ].filter(Boolean).join("");
+  // The recipe's numbers as a food-label style panel.
+  const facts = (r) => {
+    const rows = [["Protein", r.protein], ["Fibre", r.fibre], ["Time", r.time], ["Makes", r.makes]].filter(([, v]) => v);
+    return rows.length ? `<dl class="facts">${rows.map(([k, v], i) =>
+      `<div class="fact${i === 0 ? " fact-lead" : ""}"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : "";
+  };
 
-  const metaLine = (r) => [r.cuisine, r.protein && `${r.protein} protein`].filter(Boolean).map(esc).join(" · ");
+  // "~20–25g per wrap" → "20–25g"; used where protein is shown as a headline number.
+  const proteinShort = (r) => {
+    const m = String(r.protein || "").match(/(\d+)(?:\s*[–-]\s*(\d+))?\s*g/);
+    return m ? `${m[1]}${m[2] ? "–" + m[2] : ""}g` : "";
+  };
+
+  const metaLine = (r) => [r.cuisine, r.time].filter(Boolean).map(esc).join(" · ");
 
   const ingredientList = (r) => (r.ingredients || []).filter((x) => !x.startsWith("## "));
 
@@ -50,5 +55,5 @@
           ${r.tip ? `<div class="tip"><b>Tip:</b> ${esc(r.tip)}</div>` : ""}</div>
       </div>`;
 
-  g.RecipeKit = { esc, slugify, RESERVED, withSlugs, stats, metaLine, ingredientList, stepTexts, bodyHtml };
+  g.RecipeKit = { esc, slugify, RESERVED, withSlugs, facts, proteinShort, metaLine, ingredientList, stepTexts, bodyHtml };
 })(globalThis);
