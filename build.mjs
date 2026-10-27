@@ -99,7 +99,7 @@ function page(r) {
   <footer class="foot">
     <p>© ${new Date().getFullYear()} My Recipe Booklet</p>
     <p><a href="/#about">About</a> · <a href="/#contents">All recipes</a></p>
-    <p class="fine">Protein and fibre figures are estimates and vary by brand and portion.</p>
+    <p class="fine">Nutrition figures are general guides and estimates, not personal medical or dietary advice.</p>
   </footer>
 </body>
 </html>

@@ -61,7 +61,6 @@
         <span class="food-name">${esc(name)}</span>
         <span class="food-track"><i class="food-bar ${kind}" data-f="${(g / max).toFixed(3)}" aria-hidden="true"></i><b>${g} g</b></span>
       </li>`).join("")}</ol>
-      <p class="fine">Source: <a href="${c.url}" target="_blank" rel="noopener">${esc(c.source)}</a></p>
     </figure>`;
   }
 
@@ -69,7 +68,7 @@
   // Each layer opens to say what the fact means day to day and how the booklet helps.
   // Bar widths are percentages.
   const LAYERS = [
-    { kind: "bun-top", to: 0.8, dec: 1, suf: " g", fact: "protein per kg of body weight, every day",
+    { kind: "bun-top", to: 0.8, dec: 1, suf: " g", fact: "of protein per kg of body weight, every day",
       you: "A 65 kg adult needs about 52 g a day, or roughly 17 g a meal if you spread it evenly.",
       help: "Every recipe shows its protein up front, and most land between 20 and 35 g a plate.",
       sum: ["65 kg", "×", "0.8", "=", "52 g a day"] },
@@ -77,22 +76,22 @@
       you: "Closing that 10 g gap takes about one cup of cooked beans or chickpeas.",
       help: "The recipes lean on beans, chickpeas and greens, and list fibre wherever we have the figure.",
       bars: [["Target", 100, "30 g"], ["Typical adult", 67, "20 g"]] },
-    { kind: "tofu", to: 16, pre: "~", suf: " g", fact: "protein in 100 g of firm tofu. Paneer has about 18 g.",
-      you: "A 150 g portion of firm tofu gives about 24 g of protein.",
-      help: "Tofu and paneer are the base of most recipes, so a full plate does the work.",
-      bars: [["Paneer", 100, "18 g"], ["Firm tofu", 89, "16 g"]] },
-    { kind: "cheese", to: 50, suf: "%", fact: "cheaper per portion: dried beans versus tinned",
-      you: "If beans are a weekly staple, buying dried can roughly halve what you spend on them.",
-      help: "The shopping list puts every recipe's beans on one line, so you know how much to cook in one batch.",
-      bars: [["Tinned", 100, "100%"], ["Dried", 50, "~50%"]] },
-    { kind: "spinach", label: "Months", fact: "is how long frozen veg keeps, nutrients and all",
-      you: "Fresh spinach often wilts before it's used. Frozen goes straight from freezer to pan, so less ends up in the bin.",
-      help: "The spinach in these recipes is cooked, so a frozen bag works just as well as fresh.",
-      bars: [["Fresh", 10, "~1 week"], ["Frozen", 100, "months"]] },
-    { kind: "bun-bottom", label: "1 list", fact: "for the whole week's cooking",
-      you: "Fewer top-up trips means less time in shops and fewer impulse buys.",
-      help: "Tap + on the recipes you want and every ingredient merges into one list you can copy or print.",
-      ticks: ["Tofu", "Spinach", "Chickpeas"] },
+    { kind: "tofu", to: 9, suf: "", fact: "essential amino acids in tofu and soy, so they count as a complete protein",
+      you: "Most beans and grains are low in one amino acid or another, but eaten across the day they cover each other, like rajma with rice.",
+      help: "Tofu recipes give complete protein in one ingredient, and the bean recipes pair beans with rice, wraps or bread.",
+      ticks: ["Tofu", "Edamame", "Paneer"] },
+    { kind: "cheese", to: 14.8, dec: 1, suf: " mg", fact: "of iron a day for women aged 19–50. Men need 8.7 mg.",
+      you: "Iron from plants is absorbed less easily than iron from meat. Vitamin C in the same meal helps, from tomato, lime or peppers.",
+      help: "Many recipes pair beans, spinach or tofu with tomato or a squeeze of lime.",
+      bars: [["Women 19–50", 100, "14.8 mg"], ["Men", 59, "8.7 mg"]] },
+    { kind: "spinach", to: 700, suf: " mg", fact: "of calcium a day for adults, for bones and teeth",
+      you: "Dairy covers much of it. If you eat less dairy, calcium-set tofu, fortified plant drinks and greens help make up the rest.",
+      help: "Paneer, Greek yogurt and tofu turn up across the booklet.",
+      ticks: ["Paneer", "Greek yogurt", "Calcium-set tofu"] },
+    { kind: "bun-bottom", to: 1.5, dec: 1, suf: " µg", fact: "of vitamin B12 a day for adults",
+      you: "B12 occurs naturally only in animal foods. For vegetarians that means dairy and eggs, or fortified foods such as some cereals and plant drinks.",
+      help: "Recipes with paneer, Greek yogurt or cheese add some B12. If you're cutting back on dairy, look for fortified foods.",
+      ticks: ["Paneer", "Greek yogurt", "Fortified cereal"] },
   ];
   const fmt = (f, v) => `${f.pre || ""}${v.toFixed(f.dec || 0)}${f.suf || ""}`;
   const TICK = `<svg viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="16" height="16"/><path d="M4.5 9.5l3 3 6-7"/></svg>`;
@@ -198,11 +197,10 @@
 
       <section class="sandwich-section" aria-labelledby="facts-title">
         <div class="section-head"><h2 id="facts-title">Good to know</h2></div>
-        <p class="sub">Six facts, stacked. Open any layer to see what it means for you and how the booklet helps.</p>
-        <ol class="sandwich" aria-label="Six facts about eating well and spending less">${LAYERS.map(layer).join("")}</ol>
+        <p class="sub">Six things a vegetarian diet needs, stacked. Open any layer to see what it means for you and how the booklet helps.</p>
+        <ol class="sandwich" aria-label="Six nutrients a vegetarian diet needs">${LAYERS.map(layer).join("")}</ol>
         <h3 class="charts-title">The numbers behind it</h3>
         <div class="food-charts">${FOOD_CHARTS.map(foodChart).join("")}</div>
-        <p class="fine sources">Sources: NHS (fibre), US Dietary Reference Intakes (protein), USDA FoodData Central and Indian Food Composition Tables (protein in foods). Figures are general guides, not personal advice.</p>
       </section>
 
       <section class="cta-band">
