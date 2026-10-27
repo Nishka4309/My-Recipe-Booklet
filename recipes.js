@@ -1,0 +1,282 @@
+// ─────────────────────────────────────────────────────────────
+//  YOUR RECIPES
+//  To add one: copy any { ... } block below, paste it at the end
+//  of the list (before the closing ]), and change the text.
+//  Fields marked (optional) can be left out.
+// ─────────────────────────────────────────────────────────────
+
+window.RECIPES = [
+  {
+    title: "Mexican-Style Chickpea & Bean Burrito Bowl",
+    emoji: "🌯",
+    cuisine: "Mexican",
+    protein: "~20–25g",
+    fibre: "High",
+    ingredients: [
+      "¾ cup chickpeas",
+      "½ cup red kidney beans",
+      "½ cup cooked rice",
+      "1 tomato",
+      "Lettuce",
+      "2 tbsp Greek yogurt",
+      "Lime/lemon",
+      "Chilli powder + cumin + salt",
+    ],
+    method: [
+      "Pan-fry chickpeas and kidney beans with cumin, chilli powder and salt.",
+      "Add chopped tomato and cook for 2–3 minutes.",
+      "Put rice + lettuce in a bowl and top with the beans.",
+      "Mix Greek yogurt + lime + salt for a quick sauce.",
+    ],
+  },
+
+  {
+    title: "Korean-Inspired Spicy Tofu Protein Noodles",
+    emoji: "🇰🇷",
+    cuisine: "Korean-inspired",
+    protein: "~25g",
+    fibre: "High",
+    ingredients: [
+      "150–200g firm tofu",
+      "1 serving noodles",
+      "Cabbage",
+      "Carrot",
+      "Soy sauce",
+      "Gochujang/chilli sauce",
+      "Garlic",
+    ],
+    method: [
+      "Cube tofu and pan-fry until crispy.",
+      "Cook noodles.",
+      "Stir-fry cabbage + carrot + garlic.",
+      "Add noodles, tofu, soy sauce and 1 tbsp gochujang.",
+      "Toss everything together.",
+    ],
+  },
+
+  {
+    title: "Thai-Style Tofu & Red Bean Coconut Curry",
+    emoji: "🇹🇭",
+    cuisine: "Thai-inspired",
+    protein: "~22–25g",
+    fibre: "Very high",
+    ingredients: [
+      "150–200g tofu",
+      "½–¾ cup red kidney beans",
+      "Mixed vegetables — use whatever you have",
+      "Light coconut milk",
+      "Thai red curry paste",
+      "Rice",
+      "Lime/lemon",
+    ],
+    method: [
+      "Crisp the tofu in a pan.",
+      "Add 1 tbsp curry paste and fry for 30 seconds.",
+      "Add coconut milk + vegetables.",
+      "Add kidney beans and simmer for 5–7 minutes.",
+      "Add tofu back in and finish with lime.",
+      "Serve with a small portion of rice.",
+    ],
+  },
+
+  {
+    title: "Crispy Tofu & Vegetable Stir-Fry",
+    emoji: "🥢",
+    cuisine: "Asian-inspired",
+    protein: "~25g",
+    fibre: "High",
+    ingredients: [
+      "Tofu",
+      "Cabbage",
+      "Carrot",
+      "Edamame/green beans",
+      "Soy sauce",
+      "Garlic",
+    ],
+    method: [
+      "Crisp the tofu, then remove it from the pan.",
+      "Stir-fry the vegetables.",
+      "Add the tofu back in.",
+      "Add soy sauce + garlic.",
+    ],
+    tip: "Add ½ cup edamame if you want to push the protein up significantly.", // (optional)
+  },
+
+  {
+    title: "Creamy Tomato Tofu Pasta",
+    emoji: "🍝",
+    cuisine: "Italian-inspired",
+    protein: "~25g",
+    fibre: "High",
+    ingredients: [
+      "Tofu",
+      "Whole-wheat pasta",
+      "Tomato/passata",
+      "Spinach",
+      "Garlic",
+      "Greek yogurt",
+    ],
+    method: [
+      "Cook the pasta.",
+      "Sauté garlic + tomato.",
+      "Add spinach.",
+      "Crumble or pan-fry the tofu.",
+      "Mix everything together.",
+      "Turn off the heat and stir in Greek yogurt.",
+    ],
+    tip: "The Greek yogurt makes the tomato sauce creamy without needing cream.", // (optional)
+  },
+
+  {
+    title: "Spicy Indian Tofu & Spinach Wrap",
+    emoji: "🫓",
+    cuisine: "Indian",
+    protein: "~20–25g per wrap",
+    time: "~15–20 min",
+    makes: "2 wraps",
+    ingredients: [
+      "## For the filling",
+      "200g firm tofu",
+      "2 large handfuls spinach",
+      "1 tomato, finely chopped",
+      "1–2 garlic cloves, minced",
+      "½ tsp cumin",
+      "½ tsp turmeric",
+      "½–1 tsp chilli powder",
+      "½ tsp garam masala",
+      "Salt",
+      "1 tsp oil",
+      "## For the wrap",
+      "2 whole-wheat rotis/wraps",
+      "2–3 tbsp Greek yogurt",
+      "Lemon juice",
+      "Chilli flakes or chilli sauce",
+      "## Optional but highly recommended",
+      "½ cup chickpeas — adds protein + fibre + texture",
+    ],
+    method: [
+      { step: "Make the tofu filling", text: [
+        "Crumble the tofu with your hands into small pieces.",
+        "Heat 1 tsp oil in a pan. Add cumin and garlic and sauté for ~30 seconds.",
+        "Add tomato, turmeric, chilli powder and salt. Cook for 2–3 minutes until the tomato softens.",
+      ] },
+      { step: "Add the spinach", text: "Add the spinach and cook until wilted, around 1–2 minutes." },
+      { step: "Add tofu", text: [
+        "Add the crumbled tofu and garam masala. Mix everything well and cook for 4–5 minutes.",
+        "If you're using chickpeas, add them here. You can lightly mash some of them into the filling so it holds together better.",
+      ] },
+      { step: "Make the sauce", text: [
+        "Mix Greek yogurt + lemon juice + pinch of salt + chilli flakes.",
+        "You can add a little garlic if you like.",
+      ] },
+      { step: "Assemble", text: "Warm your roti/wrap → spread the yogurt sauce → add a generous amount of tofu-spinach filling → roll tightly." },
+    ],
+    tip: "For an extra-good finish, put the assembled wrap back onto the pan for 1–2 minutes per side until slightly crispy.",
+  },
+
+  {
+    title: "Crispy Paneer & Rajma Quesadilla",
+    emoji: "🌮",
+    cuisine: "Indian-Mexican",
+    protein: "~25–30g",
+    fibre: "~10g+",
+    time: "15 min",
+    makes: "1 large quesadilla",
+    ingredients: [
+      "1 large whole-wheat tortilla/wrap",
+      "100g paneer",
+      "½ cup canned red kidney beans, drained",
+      "1 small tomato, chopped",
+      "1 handful spinach",
+      "2 tbsp Greek yogurt",
+      "20–30g grated cheese — optional",
+      "½ tsp cumin",
+      "½ tsp chilli powder",
+      "¼ tsp turmeric",
+      "½ tsp garam masala",
+      "Salt",
+      "1 tsp oil",
+      "## For the dip",
+      "2 tbsp Greek yogurt",
+      "Lemon juice",
+      "Green chutney — optional",
+    ],
+    method: [
+      { step: "Mash the rajma", text: "Roughly mash ½ cup kidney beans with a fork. Don't make it completely smooth — you want some texture." },
+      { step: "Cook the masala", text: "Heat 1 tsp oil in a pan. Add cumin, tomato, turmeric, chilli powder and salt. Cook for 2–3 minutes." },
+      { step: "Add spinach + paneer", text: "Add chopped spinach and crumbled paneer. Cook for 2–3 minutes." },
+      { step: "Add rajma", text: [
+        "Mix in the mashed kidney beans and garam masala. Cook for another 2 minutes.",
+        "You want the filling to be relatively dry, otherwise the quesadilla becomes soggy.",
+      ] },
+      { step: "🧀 Assemble", text: [
+        "Put the tortilla in a dry pan over medium-low heat.",
+        "Spread Greek yogurt over half of the tortilla.",
+        "Add the paneer-rajma filling.",
+        "Add cheese if using.",
+        "Fold the tortilla over.",
+        "Cook for 2–3 minutes per side, pressing gently with a spatula.",
+        "Flip once the bottom is golden and crispy.",
+      ] },
+      { step: "🥣 Make a 30-second dip", text: [
+        "Mix 2 tbsp Greek yogurt + lemon juice + chilli powder + salt.",
+        "You can also add a little green chutney if you have it.",
+      ] },
+    ],
+  },
+
+  {
+    title: "Crispy Paneer-Rajma Hash Brown Burger",
+    emoji: "🍔",
+    cuisine: "Indian fusion",
+    protein: "~30–35g",
+    fibre: "~8–10g",
+    time: "~20 min",
+    ingredients: [
+      "## Burger filling",
+      "100–120g paneer",
+      "½ cup canned rajma, drained",
+      "1 hash brown",
+      "2 slices whole-wheat bread/burger bun",
+      "1 tomato",
+      "Lettuce or spinach",
+      "2 tbsp Greek yogurt",
+      "1 tsp chilli sauce",
+      "½ tsp cumin",
+      "½ tsp chilli powder",
+      "½ tsp garam masala",
+      "Salt",
+      "1 tsp oil",
+      "Lemon",
+      "## Optional",
+      "Cheese slice",
+      "Pickled onions",
+      "Green chutney",
+    ],
+    method: [
+      { step: "Make the spicy paneer", text: [
+        "Crumble your paneer. Mix with cumin, chilli powder, garam masala and salt.",
+        "Pan-fry with a little oil for 3–4 minutes until the edges become golden.",
+      ] },
+      { step: "Make the rajma spread", text: [
+        "Take your ½ cup rajma and roughly mash it. Add a pinch of salt, chilli powder and a squeeze of lemon.",
+        "Put it in the same pan and cook for 2–3 minutes. You want it thick and slightly crispy, not watery.",
+      ] },
+      { step: "Get your hash brown CRISPY", text: [
+        "Air-fry or pan-fry your hash brown until it's deeply golden and crunchy.",
+        "Don't rush this part. The contrast between the crispy hash brown and soft paneer is what makes the sandwich good.",
+      ] },
+      { step: "Make the sauce", text: [
+        "Mix 2 tbsp Greek yogurt + 1 tsp chilli sauce + pinch of salt + lemon.",
+        "If you have green chutney, add 1 tsp. 🔥",
+      ] },
+      { step: "Build it", text: [
+        "Toast your bread/bun, then layer:",
+        "Bread → spicy Greek-yogurt sauce → rajma spread → paneer → tomato + lettuce/spinach → CRISPY HASH BROWN → more sauce → bread.",
+        "Then press it down slightly.",
+      ] },
+    ],
+  },
+
+  // ← paste new recipes here
+];

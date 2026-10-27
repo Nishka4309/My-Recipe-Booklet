@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Recipe Booklet · High-protein vegetarian recipes</title>
+  <meta name="description" content="Quick, high-protein vegetarian recipes — tofu, paneer, beans and more, with protein and fibre for every dish and a shopping list that builds itself.">
+  <link rel="canonical" href="https://my-recipe-booklet.netlify.app/">
+  <meta name="theme-color" content="#c2502e">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="My Recipe Booklet">
+  <meta property="og:title" content="My Recipe Booklet · High-protein vegetarian recipes">
+  <meta property="og:description" content="Quick, high-protein vegetarian recipes with protein and fibre for every dish — and a shopping list that builds itself.">
+  <meta property="og:url" content="https://my-recipe-booklet.netlify.app/">
+  <meta property="og:image" content="https://my-recipe-booklet.netlify.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script src="recipes.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#book">Skip to content</a>
+  <header class="bar">
+    <a class="bar-title" href="#" aria-label="My Recipe Booklet, home"><img src="favicon.svg" alt="" width="26" height="26"> Recipe Booklet</a>
+    <nav class="bar-actions" aria-label="Main">
+      <button class="btn" data-go="contents">Recipes</button>
+      <button class="btn cart" id="cart" data-go="list" aria-label="Shopping list">🛒 List</button>
+      <button class="btn" id="print">Print</button>
+    </nav>
+  </header>
+
+  <main id="book" class="book" tabindex="-1">
+    <noscript><p class="noscript">This recipe booklet needs JavaScript turned on to show the recipes.</p></noscript>
+  </main>
+
+  <footer class="foot">
+    <p>© <span id="year">2026</span> My Recipe Booklet</p>
+    <p><a href="#about">About</a> · <a href="#contents">All recipes</a></p>
+    <p class="fine">Protein and fibre figures are estimates and vary by brand and portion.</p>
+  </footer>
+</body>
+</html>
